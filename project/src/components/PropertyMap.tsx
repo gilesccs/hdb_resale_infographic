@@ -5,7 +5,7 @@ import { Info } from 'lucide-react';
 import FilterBar from './FilterBar';
 import { getPropertyData } from '../services/apiService';
 import { ProcessedPropertyData, PropertyFilters, TownData } from '../types';
-import singaporeGeoData from '../data/singaporeGeo';
+import singaporePlanningAreas from '../data/singaporePlanningAreas.json';
 import { processPropertyData } from '../utils/dataUtils';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -69,7 +69,7 @@ const PropertyMap: React.FC = () => {
     if (!map.current.getSource('singapore-regions')) {
       map.current.addSource('singapore-regions', {
         type: 'geojson',
-        data: singaporeGeoData
+        data: singaporePlanningAreas
       });
     }
 
@@ -108,19 +108,19 @@ const PropertyMap: React.FC = () => {
       map.current.on('mousemove', 'region-fills', (e) => {
         if (e.features && e.features[0]) {
           const feature = e.features[0];
-          const townName = feature.properties.Name;
+          const townName = feature.properties.PA_NAME;
           const townData = getTownDataForTooltip(townName);
 
           if (townData) {
             new maplibregl.Popup()
               .setLngLat(e.lngLat)
-              .setHTML(`
-                <div class="bg-white p-2 rounded shadow">
+              .setHTML(
+                `<div class="bg-white p-2 rounded shadow">
                   <h3 class="font-bold">${townName}</h3>
                   <p>Average Price: $${townData.averagePrice.toLocaleString()}</p>
                   <p>Listings: ${townData.listingsCount}</p>
-                </div>
-              `)
+                </div>`
+              )
               .addTo(map.current!);
           }
         }
@@ -188,8 +188,8 @@ const PropertyMap: React.FC = () => {
   const updateMapColors = () => {
     if (!map.current || !propertyData) return;
 
-    const features = singaporeGeoData.features.map(feature => {
-      const townName = feature.properties.Name;
+    const features = singaporePlanningAreas.features.map((feature: any) => {
+      const townName = feature.properties.PA_NAME;
       const townData = getTownDataForTooltip(townName);
       return {
         ...feature,
