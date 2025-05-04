@@ -5,7 +5,7 @@ import { Info } from 'lucide-react';
 import FilterBar from './FilterBar';
 import { getPropertyData } from '../services/apiService';
 import { ProcessedPropertyData, PropertyFilters, TownData } from '../types';
-import singaporePlanningAreas from '../data/singaporePlanningAreas.json';
+import hdbTownsGeoJSON from '../data/hdbTownsMerged.json';
 import { processPropertyData } from '../utils/dataUtils';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -66,10 +66,10 @@ const PropertyMap: React.FC = () => {
     if (!map.current || !map.current.loaded()) return;
 
     // Check if source already exists
-    if (!map.current.getSource('singapore-regions')) {
-      map.current.addSource('singapore-regions', {
+    if (!map.current.getSource('hdb-towns')) {
+      map.current.addSource('hdb-towns', {
         type: 'geojson',
-        data: singaporePlanningAreas
+        data: hdbTownsGeoJSON
       });
     }
 
@@ -78,7 +78,7 @@ const PropertyMap: React.FC = () => {
       map.current.addLayer({
         id: 'region-fills',
         type: 'fill',
-        source: 'singapore-regions',
+        source: 'hdb-towns',
         paint: {
           'fill-color': [
             'case',
@@ -95,7 +95,7 @@ const PropertyMap: React.FC = () => {
       map.current.addLayer({
         id: 'region-borders',
         type: 'line',
-        source: 'singapore-regions',
+        source: 'hdb-towns',
         paint: {
           'line-color': '#ffffff',
           'line-width': 1
@@ -108,7 +108,7 @@ const PropertyMap: React.FC = () => {
       map.current.on('mousemove', 'region-fills', (e) => {
         if (e.features && e.features[0]) {
           const feature = e.features[0];
-          const townName = feature.properties.PA_NAME;
+          const townName = feature.properties.Name;
           const townData = getTownDataForTooltip(townName);
 
           if (townData) {
@@ -188,8 +188,8 @@ const PropertyMap: React.FC = () => {
   const updateMapColors = () => {
     if (!map.current || !propertyData) return;
 
-    const features = singaporePlanningAreas.features.map((feature: any) => {
-      const townName = feature.properties.PA_NAME;
+    const features = hdbTownsGeoJSON.features.map((feature: any) => {
+      const townName = feature.properties.Name;
       const townData = getTownDataForTooltip(townName);
       return {
         ...feature,
@@ -200,7 +200,7 @@ const PropertyMap: React.FC = () => {
       };
     });
 
-    const source = map.current.getSource('singapore-regions') as maplibregl.GeoJSONSource;
+    const source = map.current.getSource('hdb-towns') as maplibregl.GeoJSONSource;
     if (source) {
       source.setData({
         type: 'FeatureCollection',
