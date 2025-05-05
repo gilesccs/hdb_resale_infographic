@@ -7,4 +7,13 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  build: {
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
+  },
+  assetsInclude: ['**/*.json'],
+  json: {
+    stringify: false
+  }
 });

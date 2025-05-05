@@ -7,17 +7,27 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "merge": "ts-node --esm src/scripts/mergePlanningAreas.ts"
   },
   "dependencies": {
+    "@turf/combine": "^7.2.0",
+    "@turf/dissolve": "^7.2.0",
+    "@turf/helpers": "^7.2.0",
     "@turf/turf": "^7.2.0",
+    "@turf/union": "^7.2.0",
+    "@types/geojson": "^7946.0.16",
+    "@types/node": "^22.15.3",
+    "@types/turf": "^3.5.32",
     "axios": "^1.6.2",
     "d3": "^7.8.5",
     "flubber": "^0.4.2",
+    "geojson": "^0.5.0",
     "lucide-react": "^0.344.0",
     "maplibre-gl": "^3.6.2",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

@@ -3,7 +3,8 @@ import { Filter, RefreshCcw } from 'lucide-react';
 import { PropertyFilters } from '../types';
 
 interface FilterBarProps {
-  onFilterChange: (filters: PropertyFilters) => void;
+  filters: PropertyFilters;
+  onFiltersChange: (filters: PropertyFilters) => void;
 }
 
 const FLAT_TYPES = [
@@ -17,28 +18,15 @@ const FLAT_TYPES = [
   'MULTI-GENERATION'
 ];
 
-const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
-  const [flatType, setFlatType] = useState<string>('ALL');
-  const [minLeaseYears, setMinLeaseYears] = useState<number>(0);
-  const [maxLeaseYears, setMaxLeaseYears] = useState<number>(99);
+const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
-  useEffect(() => {
-    const debouncedFilterChange = setTimeout(() => {
-      onFilterChange({
-        flatType,
-        minLeaseYears,
-        maxLeaseYears
-      });
-    }, 300);
-
-    return () => clearTimeout(debouncedFilterChange);
-  }, [flatType, minLeaseYears, maxLeaseYears, onFilterChange]);
-
   const resetFilters = () => {
-    setFlatType('ALL');
-    setMinLeaseYears(0);
-    setMaxLeaseYears(99);
+    onFiltersChange({
+      flatType: 'ALL',
+      minLeaseYears: 0,
+      maxLeaseYears: 99
+    });
   };
 
   return (
@@ -64,8 +52,8 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
           </label>
           <select
             id="flatType"
-            value={flatType}
-            onChange={(e) => setFlatType(e.target.value)}
+            value={filters.flatType}
+            onChange={(e) => onFiltersChange({ ...filters, flatType: e.target.value })}
             className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
           >
             {FLAT_TYPES.map((type) => (
@@ -88,14 +76,17 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
                   id="minLeaseYears"
                   min="0"
                   max="99"
-                  value={minLeaseYears}
+                  value={filters.minLeaseYears}
                   onChange={(e) => {
                     const value = parseInt(e.target.value);
-                    setMinLeaseYears(value > maxLeaseYears ? maxLeaseYears : value);
+                    onFiltersChange({
+                      ...filters,
+                      minLeaseYears: value > filters.maxLeaseYears ? filters.maxLeaseYears : value
+                    });
                   }}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                 />
-                <span className="w-8 text-center text-sm font-medium">{minLeaseYears}</span>
+                <span className="w-8 text-center text-sm font-medium">{filters.minLeaseYears}</span>
               </div>
             </div>
             
@@ -109,14 +100,17 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
                   id="maxLeaseYears"
                   min="0"
                   max="99"
-                  value={maxLeaseYears}
+                  value={filters.maxLeaseYears}
                   onChange={(e) => {
                     const value = parseInt(e.target.value);
-                    setMaxLeaseYears(value < minLeaseYears ? minLeaseYears : value);
+                    onFiltersChange({
+                      ...filters,
+                      maxLeaseYears: value < filters.minLeaseYears ? filters.minLeaseYears : value
+                    });
                   }}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                 />
-                <span className="w-8 text-center text-sm font-medium">{maxLeaseYears}</span>
+                <span className="w-8 text-center text-sm font-medium">{filters.maxLeaseYears}</span>
               </div>
             </div>
           </>
