@@ -14,12 +14,19 @@ interface PlanningAreaFeature extends Feature<Polygon | MultiPolygon> {
     Name: string;
     HDBTownName: string | null;
     originalSubzones: string[];
+    isTownBoundary: boolean;
+    id: number;
     [key: string]: any;
   };
 }
 
 function extractPlanningArea(description: string): string | null {
   const match = description.match(/<th>PLN_AREA_N<\/th>\s*<td>(.*?)<\/td>/);
+  return match ? match[1].toUpperCase() : null;
+}
+
+function extractSubzoneName(description: string): string | null {
+  const match = description.match(/<th>SUBZONE_N<\/th>\s*<td>(.*?)<\/td>/);
   return match ? match[1].toUpperCase() : null;
 }
 
@@ -42,47 +49,46 @@ export function mergeSubzonesToPlanningAreas(
     planningAreaGroups.get(planningArea)!.push(feature as SubzoneFeature);
   });
 
-  // Merge geometries for each planning area
-  const mergedFeatures: PlanningAreaFeature[] = [];
+  // Process each planning area
+  const townBoundaries: PlanningAreaFeature[] = [];
+  let idCounter = 0;
 
   planningAreaGroups.forEach((features, planningArea) => {
-    // Skip if no features
     if (features.length === 0) return;
 
     try {
+      const hdbTownName = planningAreaToHdbTown[planningArea] || null;
+      if (!hdbTownName) return; // Skip if not an HDB town
+
       // Create a feature collection from the subzone features
       const collection = turf.featureCollection(features);
       
-      // Merge using combine
+      // Combine the features
       const combined = turf.combine(collection);
       
       if (!combined || combined.features.length === 0) return;
 
-      // Get corresponding HDB town name
-      const hdbTownName = planningAreaToHdbTown[planningArea] || null;
-
-      // Create merged feature
-      const mergedFeature: PlanningAreaFeature = {
+      // Create the town boundary feature
+      const townBoundaryFeature: PlanningAreaFeature = {
         type: 'Feature',
         properties: {
           Name: planningArea,
           HDBTownName: hdbTownName,
-          originalSubzones: features.map(f => extractPlanningArea(f.properties.Description) || '')
+          originalSubzones: features.map(f => extractSubzoneName(f.properties.Description) || ''),
+          isTownBoundary: true,
+          id: idCounter++
         },
         geometry: combined.features[0].geometry
       };
+      townBoundaries.push(townBoundaryFeature);
 
-      // Only include features that map to an HDB town
-      if (hdbTownName) {
-        mergedFeatures.push(mergedFeature);
-      }
     } catch (error) {
-      console.error(`Error merging features for ${planningArea}:`, error);
+      console.error(`Error processing features for ${planningArea}:`, error);
     }
   });
 
   return {
     type: 'FeatureCollection',
-    features: mergedFeatures
+    features: townBoundaries
   };
 } 

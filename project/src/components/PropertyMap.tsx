@@ -5,6 +5,7 @@ import { Info } from 'lucide-react';
 import type { Feature, FeatureCollection, Polygon, MultiPolygon } from 'geojson';
 import combine from '@turf/combine';
 import { featureCollection } from '@turf/helpers';
+import { Paper, Text, Title, Group, Stack } from '@mantine/core';
 import FilterBar from './FilterBar';
 import { getPropertyData } from '../services/apiService';
 import { ProcessedPropertyData, PropertyFilters, TownData, PropertyRecord } from '../types';
@@ -19,6 +20,7 @@ interface PlanningAreaProperties {
   averagePrice?: number;
   listingsCount?: number;
   id?: number;
+  isTownBoundary?: boolean;
 }
 
 type PlanningAreaFeature = Feature<Polygon | MultiPolygon, PlanningAreaProperties>;
@@ -27,11 +29,14 @@ type PlanningAreaCollection = FeatureCollection<Polygon | MultiPolygon, Planning
 const PropertyMap: React.FC = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
-  const popup = useRef<maplibregl.Popup | null>(null);
   const [planningAreas, setPlanningAreas] = useState<PlanningAreaCollection | null>(null);
   const [propertyData, setPropertyData] = useState<ProcessedPropertyData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedArea, setSelectedArea] = useState<{
+    name: string;
+    data: TownData;
+  } | null>(null);
   const [filters, setFilters] = useState<PropertyFilters>({
     flatType: 'ALL',
     minLeaseYears: 0,
@@ -67,7 +72,7 @@ const PropertyMap: React.FC = () => {
             type: 'raster',
             source: 'osm',
             paint: {
-              'raster-opacity': 0.5
+              'raster-opacity': 0.3
             }
           }
         ]
@@ -188,10 +193,47 @@ const PropertyMap: React.FC = () => {
       });
     }
 
-    // Check if layers already exist before adding them
+    // Add base map with reduced opacity
+    if (!map.current.getLayer('osm')) {
+      map.current.addLayer({
+        id: 'osm',
+        type: 'raster',
+        source: 'osm',
+        paint: {
+          'raster-opacity': 0.3
+        }
+      });
+    }
+
+    // Add region fills with enhanced hover effect
     if (!map.current.getLayer('region-fills')) {
       map.current.addLayer({
         id: 'region-fills',
+        type: 'fill-extrusion',
+        source: 'hdb-towns',
+        paint: {
+          'fill-extrusion-color': [
+            'case',
+            ['has', 'averagePrice'],
+            ['interpolate', ['linear'], ['get', 'averagePrice'], 200000, '#2ecc71', 600000, '#f1c40f', 1000000, '#e74c3c'],
+            '#d1d5db'
+          ],
+          'fill-extrusion-height': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            1000,
+            0
+          ],
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 0.95
+        }
+      });
+    }
+
+    // Add base fill layer for better visibility
+    if (!map.current.getLayer('region-base')) {
+      map.current.addLayer({
+        id: 'region-base',
         type: 'fill',
         source: 'hdb-towns',
         paint: {
@@ -201,65 +243,48 @@ const PropertyMap: React.FC = () => {
             ['interpolate', ['linear'], ['get', 'averagePrice'], 200000, '#2ecc71', 600000, '#f1c40f', 1000000, '#e74c3c'],
             '#d1d5db'
           ],
-          'fill-opacity': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            0.9,
-            0.7
-          ]
+          'fill-opacity': 1
         }
-      });
+      }, 'region-fills');  // Insert before the extrusion layer
     }
 
-    // Add thick white border underneath for glow effect
-    if (!map.current.getLayer('region-borders-glow')) {
-      map.current.addLayer({
-        id: 'region-borders-glow',
-        type: 'line',
-        source: 'hdb-towns',
-        layout: {
-          'line-join': 'round'
-        },
-        filter: ['==', ['get', 'isTownBoundary'], true],
-        paint: {
-          'line-color': '#ffffff',
-          'line-width': 4,
-          'line-opacity': 1,
-          'line-blur': 1
-        }
-      });
-    }
-
+    // Add border layer
     if (!map.current.getLayer('region-borders')) {
       map.current.addLayer({
         id: 'region-borders',
         type: 'line',
         source: 'hdb-towns',
-        layout: {
-          'line-join': 'round'
-        },
-        filter: ['==', ['get', 'isTownBoundary'], true],
         paint: {
-          'line-color': '#34495e',
-          'line-width': 2.5,
-          'line-opacity': 1
+          'line-color': '#ffffff',
+          'line-width': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            2,
+            1
+          ],
+          'line-opacity': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            0.8,
+            0.3
+          ]
         }
       });
     }
 
-    // Add hover highlight layer
-    if (!map.current.getLayer('region-hover')) {
+    // Add highlight border for hovered state
+    if (!map.current.getLayer('region-hover-borders')) {
       map.current.addLayer({
-        id: 'region-hover',
+        id: 'region-hover-borders',
         type: 'line',
         source: 'hdb-towns',
         paint: {
           'line-color': '#ffffff',
-          'line-width': 3,
+          'line-width': 2,
           'line-opacity': [
             'case',
             ['boolean', ['feature-state', 'hover'], false],
-            1,
+            0.8,
             0
           ]
         }
@@ -275,7 +300,6 @@ const PropertyMap: React.FC = () => {
       map.current.off('mouseleave', 'region-fills', () => {});
 
       const handleMouseMove = (e: MapLayerMouseEvent) => {
-        console.log('Mousemove event:', e.features?.[0]);
         if (e.features && e.features[0]) {
           const feature = e.features[0];
           const featureId = feature.properties.id;
@@ -297,28 +321,11 @@ const PropertyMap: React.FC = () => {
           const townName = properties.HDBTownName || properties.Name;
           const townData = getTownDataForTooltip(townName);
 
-          // Remove existing popup if it exists
-          if (popup.current) {
-            popup.current.remove();
-          }
-
-          if (townData && map.current) {
-            // Create and store new popup
-            popup.current = new maplibregl.Popup({
-              closeButton: false,
-              closeOnClick: false,
-              className: 'town-popup',
-              offset: [0, -10]
-            })
-              .setLngLat(e.lngLat)
-              .setHTML(
-                `<div class="bg-white p-2 rounded shadow">
-                  <h3 class="font-bold">${townName}</h3>
-                  <p>Average Price: $${townData.averagePrice.toLocaleString()}</p>
-                  <p>Listings: ${townData.listingsCount}</p>
-                </div>`
-              )
-              .addTo(map.current);
+          if (townData) {
+            setSelectedArea({
+              name: townName,
+              data: townData
+            });
           }
         }
       };
@@ -331,11 +338,7 @@ const PropertyMap: React.FC = () => {
           );
         }
         hoveredStateId = undefined;
-
-        if (popup.current) {
-          popup.current.remove();
-          popup.current = null;
-        }
+        setSelectedArea(null);
       };
 
       map.current.on('mousemove', 'region-fills', handleMouseMove);
@@ -359,9 +362,9 @@ const PropertyMap: React.FC = () => {
       featuresByTown.get(townName)!.push(feature as PlanningAreaFeature);
     });
 
-    // Merge features for each town
-    const mergedFeatures: PlanningAreaFeature[] = [];
-    let idCounter = 0;  // Counter for generating unique IDs
+    // Create two separate feature collections: one for town boundaries and one for subzones
+    const townBoundaries: PlanningAreaFeature[] = [];
+    let idCounter = 0;
     
     featuresByTown.forEach((features, townName) => {
       if (features.length === 0) return;
@@ -369,126 +372,64 @@ const PropertyMap: React.FC = () => {
       // Get the town data
       const townData = getTownDataForTooltip(townName);
 
-      if (features.length === 1) {
-        // If there's only one feature, use it directly
-        const feature = features[0];
-        feature.properties = {
+      // Create a merged feature for the town boundary
+      const collection = featureCollection(features);
+      const combined = combine(collection);
+      
+      if (combined && combined.features.length > 0) {
+        const mergedFeature = combined.features[0] as PlanningAreaFeature;
+        mergedFeature.properties = {
           Name: townName,
           HDBTownName: townName,
           originalSubzones: [],
           averagePrice: townData?.averagePrice,
           listingsCount: townData?.listingsCount,
-          id: idCounter  // Store ID in properties as well
+          id: idCounter,
+          isTownBoundary: true  // Mark this as a town boundary
         };
-        // Ensure the feature has a unique numeric ID
-        feature.id = idCounter++;
-        mergedFeatures.push(feature);
-      } else {
-        // For multiple features, combine them
-        const collection = featureCollection(features);
-        const combined = combine(collection);
-        
-        if (combined && combined.features.length > 0) {
-          const mergedFeature = combined.features[0] as PlanningAreaFeature;
-          mergedFeature.properties = {
-            Name: townName,
-            HDBTownName: townName,
-            originalSubzones: [],
-            averagePrice: townData?.averagePrice,
-            listingsCount: townData?.listingsCount,
-            id: idCounter  // Store ID in properties as well
-          };
-          // Ensure the feature has a unique numeric ID
-          mergedFeature.id = idCounter++;
-          mergedFeatures.push(mergedFeature);
-        }
+        mergedFeature.id = idCounter++;
+        townBoundaries.push(mergedFeature);
       }
     });
 
-    // Update the source data with merged features
+    // Update the source data with town boundaries only
     const updatedData: PlanningAreaCollection = {
       type: 'FeatureCollection',
-      features: mergedFeatures
+      features: townBoundaries
     };
 
     // Update the source data
     source.setData(updatedData);
 
-    // Add hover effect
+    // Update the layer styles
     if (map.current) {
-      let hoveredStateId: number | undefined = undefined;
-
-      // Remove any existing event handlers
-      map.current.off('mousemove', 'region-fills', () => {});
-      map.current.off('mouseleave', 'region-fills', () => {});
-
-      const handleMouseMove = (e: MapLayerMouseEvent) => {
-        console.log('Mousemove event:', e.features?.[0]);
-        if (e.features && e.features[0]) {
-          const feature = e.features[0];
-          const featureId = feature.properties.id;
-          
-          if (hoveredStateId !== undefined) {
-            map.current!.setFeatureState(
-              { source: 'hdb-towns', id: hoveredStateId },
-              { hover: false }
-            );
+      // Update fill layer if needed
+      if (!map.current.getLayer('region-fills')) {
+        map.current.addLayer({
+          id: 'region-fills',
+          type: 'fill-extrusion',
+          source: 'hdb-towns',
+          paint: {
+            'fill-extrusion-color': [
+              'case',
+              ['has', 'averagePrice'],
+              ['interpolate', ['linear'], ['get', 'averagePrice'], 200000, '#2ecc71', 600000, '#f1c40f', 1000000, '#e74c3c'],
+              '#d1d5db'
+            ],
+            'fill-extrusion-height': [
+              'case',
+              ['boolean', ['feature-state', 'hover'], false],
+              1000,
+              0
+            ],
+            'fill-extrusion-base': 0,
+            'fill-extrusion-opacity': 0.95
           }
-
-          hoveredStateId = featureId;
-          map.current!.setFeatureState(
-            { source: 'hdb-towns', id: hoveredStateId },
-            { hover: true }
-          );
-
-          const properties = feature.properties as PlanningAreaProperties;
-          const townName = properties.HDBTownName || properties.Name;
-          const townData = getTownDataForTooltip(townName);
-
-          // Remove existing popup if it exists
-          if (popup.current) {
-            popup.current.remove();
-          }
-
-          if (townData && map.current) {
-            // Create and store new popup
-            popup.current = new maplibregl.Popup({
-              closeButton: false,
-              closeOnClick: false,
-              className: 'town-popup',
-              offset: [0, -10]
-            })
-              .setLngLat(e.lngLat)
-              .setHTML(
-                `<div class="bg-white p-2 rounded shadow">
-                  <h3 class="font-bold">${townName}</h3>
-                  <p>Average Price: $${townData.averagePrice.toLocaleString()}</p>
-                  <p>Listings: ${townData.listingsCount}</p>
-                </div>`
-              )
-              .addTo(map.current);
-          }
-        }
-      };
-
-      const handleMouseLeave = () => {
-        if (hoveredStateId !== undefined) {
-          map.current!.setFeatureState(
-            { source: 'hdb-towns', id: hoveredStateId },
-            { hover: false }
-          );
-        }
-        hoveredStateId = undefined;
-
-        if (popup.current) {
-          popup.current.remove();
-          popup.current = null;
-        }
-      };
-
-      map.current.on('mousemove', 'region-fills', handleMouseMove);
-      map.current.on('mouseleave', 'region-fills', handleMouseLeave);
+        });
+      }
     }
+    
+    // Rest of the hover effect code...
   };
 
   return (
@@ -503,6 +444,107 @@ const PropertyMap: React.FC = () => {
       </div>
       <div className="relative flex-1">
         <div ref={mapContainer} className="absolute inset-0" />
+        
+        {/* Info Panel */}
+        <div className="absolute top-4 right-4 z-20" style={{ minWidth: '220px', maxWidth: '240px' }}>
+          {selectedArea ? (
+            <Paper 
+              shadow="sm" 
+              p="xs" 
+              radius="md" 
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(231, 245, 255, 0.3)',
+                boxShadow: '0 8px 32px rgba(77, 171, 247, 0.1)'
+              }}
+            >
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <Title order={4} style={{ 
+                    fontSize: '1.1rem',
+                    letterSpacing: '-0.02em',
+                    background: 'linear-gradient(135deg, #2188ff, #0366d6)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    fontWeight: 600
+                  }}>
+                    {selectedArea.name}
+                  </Title>
+                </div>
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '6px'
+                }}>
+                  <div style={{
+                    background: 'linear-gradient(to right, rgba(231, 245, 255, 0.5), rgba(231, 245, 255, 0.3))',
+                    padding: '8px',
+                    borderRadius: '6px',
+                    border: '1px solid rgba(231, 245, 255, 0.5)'
+                  }}>
+                    <Text c="dimmed" size="xs" style={{ 
+                      marginBottom: '1px',
+                      letterSpacing: '0.02em',
+                      textTransform: 'uppercase',
+                      fontWeight: 500
+                    }}>
+                      Average Price
+                    </Text>
+                    <Text size="md" fw={600} style={{ 
+                      color: '#0366d6',
+                      letterSpacing: '-0.01em'
+                    }}>
+                      ${selectedArea.data.averagePrice.toLocaleString()}
+                    </Text>
+                  </div>
+                  <div style={{
+                    background: 'linear-gradient(to right, rgba(231, 245, 255, 0.5), rgba(231, 245, 255, 0.3))',
+                    padding: '8px',
+                    borderRadius: '6px',
+                    border: '1px solid rgba(231, 245, 255, 0.5)'
+                  }}>
+                    <Text c="dimmed" size="xs" style={{ 
+                      marginBottom: '1px',
+                      letterSpacing: '0.02em',
+                      textTransform: 'uppercase',
+                      fontWeight: 500
+                    }}>
+                      Number of Listings
+                    </Text>
+                    <Text size="md" fw={600} style={{ 
+                      color: '#0366d6',
+                      letterSpacing: '-0.01em'
+                    }}>
+                      {selectedArea.data.listingsCount}
+                    </Text>
+                  </div>
+                </div>
+              </div>
+            </Paper>
+          ) : (
+            <Paper 
+              shadow="sm" 
+              p="xs" 
+              radius="md" 
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(231, 245, 255, 0.3)',
+                boxShadow: '0 8px 32px rgba(77, 171, 247, 0.1)'
+              }}
+            >
+              <Text c="dimmed" size="xs" style={{ 
+                color: '#0366d6',
+                letterSpacing: '0.02em',
+                fontWeight: 500
+              }}>
+                Hover over an area to see details
+              </Text>
+            </Paper>
+          )}
+        </div>
+
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="text-white">Loading...</div>

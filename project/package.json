@@ -11,6 +11,9 @@
     "merge": "ts-node --esm src/scripts/mergePlanningAreas.ts"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@mantine/core": "^8.0.0",
+    "@mantine/hooks": "^8.0.0",
     "@turf/combine": "^7.2.0",
     "@turf/dissolve": "^7.2.0",
     "@turf/helpers": "^7.2.0",
