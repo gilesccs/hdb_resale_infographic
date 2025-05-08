@@ -474,7 +474,7 @@ const PropertyMap: React.FC = () => {
 
   return (
     <div className="relative w-full h-full flex flex-col">
-      <div className="p-4 bg-white shadow-sm z-10">
+      <div className="p-2 sm:p-4 bg-white shadow-sm z-10">
         <FilterBar
           filters={filters}
           onFiltersChange={(newFilters: PropertyFilters) => {
@@ -482,63 +482,65 @@ const PropertyMap: React.FC = () => {
           }}
         />
       </div>
-      <div className="relative flex-1">
+      <div className="relative flex-1 min-h-0">
         <div ref={mapContainer} className="absolute inset-0" />
         
-        {/* Info Panel */}
-        <div className="absolute top-4 right-4 z-20 min-w-[220px] max-w-[240px]">
+        {/* Info Panel - Responsive positioning */}
+        <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-20 w-[calc(100%-1rem)] sm:w-auto sm:min-w-[220px] sm:max-w-[240px]">
           {selectedArea ? (
             <div
-              className="rounded-xl border border-border bg-white/70 backdrop-blur-md shadow-xl px-4 py-3 flex flex-col gap-2 font-sans"
+              className="rounded-xl border border-border bg-white/70 backdrop-blur-md shadow-xl px-3 sm:px-4 py-2 sm:py-3 flex flex-col gap-2 font-sans"
               style={{
                 fontFamily: 'PT Root UI, ui-sans-serif, system-ui, sans-serif',
                 boxShadow: '0 8px 32px rgba(77, 171, 247, 0.10)',
               }}
             >
               <div className="flex items-center mb-1">
-                <span className="text-base font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent tracking-tight">
+                <span className="text-sm sm:text-base font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent tracking-tight">
                   {selectedArea.name}
                 </span>
               </div>
               {selectedArea.data.listingsCount > 0 ? (
                 <div className="flex flex-col gap-2">
                   <div className="bg-gradient-to-r from-blue-50/60 to-blue-100/30 p-2 rounded-md border border-blue-100">
-                    <span className="block text-[11px] uppercase font-semibold text-blue-700/70 mb-0.5 tracking-wide">Average Price</span>
-                    <span className="text-[15px] font-bold text-blue-700">${selectedArea.data.averagePrice.toLocaleString()}</span>
+                    <span className="block text-[10px] sm:text-[11px] uppercase font-semibold text-blue-700/70 mb-0.5 tracking-wide">Average Price</span>
+                    <span className="text-[13px] sm:text-[15px] font-bold text-blue-700">${selectedArea.data.averagePrice.toLocaleString()}</span>
                   </div>
                   <div className="bg-gradient-to-r from-blue-50/60 to-blue-100/30 p-2 rounded-md border border-blue-100">
-                    <span className="block text-[11px] uppercase font-semibold text-blue-700/70 mb-0.5 tracking-wide">Number of Listings</span>
-                    <span className="text-[15px] font-bold text-blue-700">{selectedArea.data.listingsCount}</span>
+                    <span className="block text-[10px] sm:text-[11px] uppercase font-semibold text-blue-700/70 mb-0.5 tracking-wide">Number of Listings</span>
+                    <span className="text-[13px] sm:text-[15px] font-bold text-blue-700">{selectedArea.data.listingsCount}</span>
                   </div>
                 </div>
               ) : (
-                <div className="bg-gradient-to-r from-amber-50/60 to-amber-100/30 p-3 rounded-md border border-amber-100">
-                  <span className="block text-[13px] font-medium text-amber-700/80 mb-1">No properties found</span>
-                  <span className="block text-[11px] text-amber-600/70">Try adjusting your filters to see more listings in this area.</span>
+                <div className="bg-gradient-to-r from-amber-50/60 to-amber-100/30 p-2 sm:p-3 rounded-md border border-amber-100">
+                  <span className="block text-[12px] sm:text-[13px] font-medium text-amber-700/80 mb-1">No properties found</span>
+                  <span className="block text-[10px] sm:text-[11px] text-amber-600/70">Try adjusting your filters to see more listings in this area.</span>
                 </div>
               )}
             </div>
           ) : (
             <div
-              className="rounded-xl border border-border bg-white/70 backdrop-blur-md shadow-xl px-4 py-3 font-sans"
+              className="rounded-xl border border-border bg-white/70 backdrop-blur-md shadow-xl px-3 sm:px-4 py-2 sm:py-3 font-sans"
               style={{
                 fontFamily: 'PT Root UI, ui-sans-serif, system-ui, sans-serif',
                 boxShadow: '0 8px 32px rgba(77, 171, 247, 0.10)',
               }}
             >
-              <span className="text-xs text-blue-700/80 font-semibold">Hover over an area to see details</span>
+              <span className="text-[10px] sm:text-xs text-blue-700/80 font-semibold">Hover over an area to see details</span>
             </div>
           )}
         </div>
 
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="text-white">Loading...</div>
+          <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="bg-white/90 px-4 py-2 rounded-lg shadow-lg text-sm sm:text-base font-medium text-gray-700">
+              Loading...
+            </div>
           </div>
         )}
         {error && (
-          <div className="absolute bottom-4 left-4 bg-red-500 text-white px-4 py-2 rounded flex items-center">
-            <Info className="mr-2" size={20} />
+          <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 bg-red-500 text-white px-3 py-2 rounded-lg shadow-lg flex items-center text-sm sm:text-base">
+            <Info className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
             {error}
           </div>
         )}

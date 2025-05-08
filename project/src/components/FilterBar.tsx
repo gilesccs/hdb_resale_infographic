@@ -84,134 +84,114 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange }) => {
 
   return (
     <div
-      className="w-full rounded-xl shadow-lg border border-border bg-white/60 backdrop-blur-md px-4 py-2 flex flex-col md:flex-row md:items-center md:gap-6 gap-2 transition-all"
-      style={{
-        background: 'linear-gradient(90deg, rgba(255,255,255,0.85) 60%, rgba(230,244,255,0.7) 100%)',
-        boxShadow: '0 4px 24px 0 rgba(36, 100, 170, 0.07)',
-      }}
+      className="flex flex-wrap gap-2 sm:gap-4 lg:gap-6 items-center bg-white/70 backdrop-blur-md rounded-2xl border border-border px-2 sm:px-4 py-2 shadow-md w-full"
     >
-      <div className="flex items-center gap-2 min-w-fit">
-        <Filter className="h-5 w-5 text-primary" />
-        <span className="font-medium text-foreground text-base">Filter Properties</span>
+      <div className="flex items-center gap-2 mb-2 sm:mb-0 min-w-[150px]">
+        <Filter className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
+        <span className="font-semibold text-sm sm:text-base">Filter Properties</span>
       </div>
-      <div className="flex items-center gap-2 min-w-fit">
-        <Label htmlFor="flatType" className="text-sm font-medium">Flat Type</Label>
-        <Select
-          value={filters.flatType}
-          onValueChange={(value) => onFiltersChange({ ...filters, flatType: value })}
-        >
-          <SelectTrigger id="flatType" className="w-36 h-9 text-sm" >
-            <SelectValue placeholder="Select flat type" />
-          </SelectTrigger>
-          <SelectContent>
-            {FLAT_TYPES.map((type) => (
-              <SelectItem key={type} value={type}>
-                {type}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      {isExpanded && (
-        <>
-          <div className="flex items-center gap-2 min-w-fit">
-            <Label htmlFor="minLeaseYears" className="text-sm font-medium whitespace-nowrap">Min Lease</Label>
+      <div className="flex flex-wrap gap-2 flex-1 min-w-[200px]">
+        {/* Flat Type - always shown */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 min-w-[120px] flex-shrink-0">
+          <Label className="text-xs sm:text-sm">Flat Type</Label>
+          <Select value={filters.flatType} onValueChange={v => onFiltersChange({ ...filters, flatType: v })}>
+            <SelectTrigger className="w-full sm:w-[100px] h-8" />
+            <SelectContent>
+              <SelectItem value="ALL">ALL</SelectItem>
+              <SelectItem value="1 ROOM">1 ROOM</SelectItem>
+              <SelectItem value="2 ROOM">2 ROOM</SelectItem>
+              <SelectItem value="3 ROOM">3 ROOM</SelectItem>
+              <SelectItem value="4 ROOM">4 ROOM</SelectItem>
+              <SelectItem value="5 ROOM">5 ROOM</SelectItem>
+              <SelectItem value="EXECUTIVE">EXECUTIVE</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        {/* Advanced filters: only show when isExpanded is true */}
+        {isExpanded && <>
+          {/* Min Lease */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 min-w-[120px] flex-shrink-0">
+            <Label className="text-xs sm:text-sm">Min Lease</Label>
             <Slider
-              id="minLeaseYears"
               min={0}
               max={99}
               value={[filters.minLeaseYears]}
-              onValueChange={([value]) => {
-                onFiltersChange({
-                  ...filters,
-                  minLeaseYears: value > filters.maxLeaseYears ? filters.maxLeaseYears : value
-                });
-              }}
-              className="w-28"
+              onValueChange={([v]) => onFiltersChange({ ...filters, minLeaseYears: v })}
+              className="w-[80px] sm:w-[120px]"
             />
-            <span className="w-8 text-center text-xs font-medium">{filters.minLeaseYears}</span>
+            <span className="text-xs sm:text-sm w-6 text-center">{filters.minLeaseYears}</span>
           </div>
-          <div className="flex items-center gap-2 min-w-fit">
-            <Label htmlFor="maxLeaseYears" className="text-sm font-medium whitespace-nowrap">Max Lease</Label>
+          {/* Max Lease */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 min-w-[120px] flex-shrink-0">
+            <Label className="text-xs sm:text-sm">Max Lease</Label>
             <Slider
-              id="maxLeaseYears"
               min={0}
               max={99}
               value={[filters.maxLeaseYears]}
-              onValueChange={([value]) => {
-                onFiltersChange({
-                  ...filters,
-                  maxLeaseYears: value < filters.minLeaseYears ? filters.minLeaseYears : value
-                });
-              }}
-              className="w-28"
+              onValueChange={([v]) => onFiltersChange({ ...filters, maxLeaseYears: v })}
+              className="w-[80px] sm:w-[120px]"
             />
-            <span className="w-8 text-center text-xs font-medium">{filters.maxLeaseYears}</span>
+            <span className="text-xs sm:text-sm w-6 text-center">{filters.maxLeaseYears}</span>
           </div>
-          <div className="flex items-center gap-2 min-w-fit">
-            <Label htmlFor="floorAreaRange" className="text-sm font-medium whitespace-nowrap">Floor Area</Label>
-            <Select
-              value={filters.floorAreaRange}
-              onValueChange={value => onFiltersChange({ ...filters, floorAreaRange: value })}
-            >
-              <SelectTrigger id="floorAreaRange" className="w-40 h-9 text-sm">
-                <SelectValue placeholder="Select floor area" />
-              </SelectTrigger>
+          {/* Floor Area */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 min-w-[120px] flex-shrink-0">
+            <Label className="text-xs sm:text-sm">Floor Area</Label>
+            <Select value={filters.floorAreaRange} onValueChange={v => onFiltersChange({ ...filters, floorAreaRange: v })}>
+              <SelectTrigger className="w-full sm:w-[100px] h-8" />
               <SelectContent>
-                {FLOOR_AREA_OPTIONS.map(opt => (
-                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                ))}
+                <SelectItem value="ANY">Any</SelectItem>
+                <SelectItem value="BELOW_60">Below 60</SelectItem>
+                <SelectItem value="60_79">60-79</SelectItem>
+                <SelectItem value="80_99">80-99</SelectItem>
+                <SelectItem value="100_119">100-119</SelectItem>
+                <SelectItem value="120_PLUS">120+</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-2 min-w-fit">
-            <Label htmlFor="minStorey" className="text-sm font-medium whitespace-nowrap">Min Storey</Label>
+          {/* Min Storey */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 min-w-[100px] flex-shrink-0">
+            <Label className="text-xs sm:text-sm">Min Storey</Label>
             <input
               type="number"
-              id="minStorey"
               min={1}
-              max={filters.maxStorey}
-              value={minStoreyInput}
-              inputMode="numeric"
-              pattern="[0-9]*"
-              onChange={handleMinStoreyChange}
-              onBlur={handleMinStoreyBlur}
-              className="w-12 px-2 py-1 rounded border border-border bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-            />
-            <Label htmlFor="maxStorey" className="text-sm font-medium whitespace-nowrap">Max Storey</Label>
-            <input
-              type="number"
-              id="maxStorey"
-              min={filters.minStorey}
               max={50}
-              value={maxStoreyInput}
-              inputMode="numeric"
-              pattern="[0-9]*"
-              onChange={handleMaxStoreyChange}
-              onBlur={handleMaxStoreyBlur}
-              className="w-12 px-2 py-1 rounded border border-border bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+              value={filters.minStorey}
+              onChange={e => onFiltersChange({ ...filters, minStorey: Number(e.target.value) })}
+              className="w-12 sm:w-16 h-8 rounded border border-gray-200 px-2 text-xs sm:text-sm"
             />
           </div>
-        </>
-      )}
-      <div className="flex-1" />
-      <div className="flex items-center gap-2 min-w-fit">
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="text-xs px-3 py-1 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors border border-transparent"
-        >
-          {isExpanded ? 'Simple View' : 'Advanced Filters'}
-        </button>
-        {isExpanded && (
-          <button
-            onClick={resetFilters}
-            className="flex items-center gap-1 text-xs px-3 py-1 rounded-md bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border transition-colors"
-          >
-            <RefreshCcw className="h-4 w-4" />
-            Reset
-          </button>
-        )}
+          {/* Max Storey */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 min-w-[100px] flex-shrink-0">
+            <Label className="text-xs sm:text-sm">Max Storey</Label>
+            <input
+              type="number"
+              min={1}
+              max={50}
+              value={filters.maxStorey}
+              onChange={e => onFiltersChange({ ...filters, maxStorey: Number(e.target.value) })}
+              className="w-12 sm:w-16 h-8 rounded border border-gray-200 px-2 text-xs sm:text-sm"
+            />
+          </div>
+        </>}
       </div>
+      {/* Toggle button: always visible */}
+      <button
+        type="button"
+        onClick={() => setIsExpanded((v) => !v)}
+        className="ml-auto mt-2 sm:mt-0 px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs sm:text-sm font-semibold hover:bg-blue-200 transition"
+      >
+        {isExpanded ? 'Simple View' : 'Advanced Filters'}
+      </button>
+      {/* Reset button: only when expanded */}
+      {isExpanded && (
+        <button
+          onClick={resetFilters}
+          className="flex items-center gap-1 text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-md bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border transition-colors"
+        >
+          <RefreshCcw className="h-3 w-3 sm:h-4 sm:w-4" />
+          Reset
+        </button>
+      )}
     </div>
   );
 };

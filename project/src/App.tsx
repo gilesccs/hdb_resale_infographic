@@ -17,10 +17,10 @@ function App() {
     >
       <div className="min-h-screen h-screen flex flex-col bg-gray-50">
         <Header />
-        <main className="flex-1 relative">
+        <main className="flex-1 relative min-h-0">
           <PropertyMap />
         </main>
-        <footer className="bg-gray-800 text-white p-4 text-center text-sm">
+        <footer className="bg-gray-800 text-white p-2 sm:p-4 text-center text-xs sm:text-sm">
           <p>Data source: data.gov.sg | Singapore Property Price Map © {new Date().getFullYear()}</p>
         </footer>
       </div>
