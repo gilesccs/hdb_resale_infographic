@@ -48,4 +48,7 @@ export interface PropertyFilters {
   flatType: string;
   minLeaseYears: number;
   maxLeaseYears: number;
+  floorAreaRange: string;
+  minStorey: number;
+  maxStorey: number;
 }

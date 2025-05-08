@@ -27,14 +27,58 @@ const FLAT_TYPES = [
   'MULTI-GENERATION'
 ];
 
+const FLOOR_AREA_OPTIONS = [
+  { label: 'Any', value: 'ANY' },
+  { label: 'Below 60 m²', value: 'BELOW_60' },
+  { label: '60-79 m²', value: '60_79' },
+  { label: '80-99 m²', value: '80_99' },
+  { label: '100-119 m²', value: '100_119' },
+  { label: '120 m² and above', value: '120_PLUS' },
+];
+
 const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const [minStoreyInput, setMinStoreyInput] = useState(filters.minStorey.toString());
+  const [maxStoreyInput, setMaxStoreyInput] = useState(filters.maxStorey.toString());
+
+  React.useEffect(() => {
+    setMinStoreyInput(filters.minStorey.toString());
+    setMaxStoreyInput(filters.maxStorey.toString());
+  }, [filters.minStorey, filters.maxStorey]);
+
+  const handleMinStoreyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setMinStoreyInput(val);
+    if (/^\d+$/.test(val) && Number(val) >= 1 && Number(val) <= filters.maxStorey) {
+      onFiltersChange({ ...filters, minStorey: Number(val) });
+    }
+  };
+  const handleMinStoreyBlur = () => {
+    if (!/^\d+$/.test(minStoreyInput) || Number(minStoreyInput) < 1) {
+      setMinStoreyInput(filters.minStorey.toString());
+    }
+  };
+  const handleMaxStoreyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setMaxStoreyInput(val);
+    if (/^\d+$/.test(val) && Number(val) >= filters.minStorey && Number(val) <= 50) {
+      onFiltersChange({ ...filters, maxStorey: Number(val) });
+    }
+  };
+  const handleMaxStoreyBlur = () => {
+    if (!/^\d+$/.test(maxStoreyInput) || Number(maxStoreyInput) > 50) {
+      setMaxStoreyInput(filters.maxStorey.toString());
+    }
+  };
 
   const resetFilters = () => {
     onFiltersChange({
       flatType: 'ALL',
       minLeaseYears: 0,
-      maxLeaseYears: 99
+      maxLeaseYears: 99,
+      floorAreaRange: 'ANY',
+      minStorey: 1,
+      maxStorey: 50,
     });
   };
 
@@ -103,6 +147,50 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange }) => {
               className="w-28"
             />
             <span className="w-8 text-center text-xs font-medium">{filters.maxLeaseYears}</span>
+          </div>
+          <div className="flex items-center gap-2 min-w-fit">
+            <Label htmlFor="floorAreaRange" className="text-sm font-medium whitespace-nowrap">Floor Area</Label>
+            <Select
+              value={filters.floorAreaRange}
+              onValueChange={value => onFiltersChange({ ...filters, floorAreaRange: value })}
+            >
+              <SelectTrigger id="floorAreaRange" className="w-40 h-9 text-sm">
+                <SelectValue placeholder="Select floor area" />
+              </SelectTrigger>
+              <SelectContent>
+                {FLOOR_AREA_OPTIONS.map(opt => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-2 min-w-fit">
+            <Label htmlFor="minStorey" className="text-sm font-medium whitespace-nowrap">Min Storey</Label>
+            <input
+              type="number"
+              id="minStorey"
+              min={1}
+              max={filters.maxStorey}
+              value={minStoreyInput}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              onChange={handleMinStoreyChange}
+              onBlur={handleMinStoreyBlur}
+              className="w-12 px-2 py-1 rounded border border-border bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+            />
+            <Label htmlFor="maxStorey" className="text-sm font-medium whitespace-nowrap">Max Storey</Label>
+            <input
+              type="number"
+              id="maxStorey"
+              min={filters.minStorey}
+              max={50}
+              value={maxStoreyInput}
+              inputMode="numeric"
+              pattern="[0-9]*"
+              onChange={handleMaxStoreyChange}
+              onBlur={handleMaxStoreyBlur}
+              className="w-12 px-2 py-1 rounded border border-border bg-white/80 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+            />
           </div>
         </>
       )}

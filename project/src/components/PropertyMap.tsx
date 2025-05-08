@@ -40,7 +40,10 @@ const PropertyMap: React.FC = () => {
   const [filters, setFilters] = useState<PropertyFilters>({
     flatType: 'ALL',
     minLeaseYears: 0,
-    maxLeaseYears: 99
+    maxLeaseYears: 99,
+    floorAreaRange: 'ANY',
+    minStorey: 1,
+    maxStorey: 50
   });
 
   const colorScale = d3.scaleSequential()
@@ -158,15 +161,43 @@ const PropertyMap: React.FC = () => {
     const townData = propertyData.towns[townName];
     if (!townData) return null;
 
+    // Helper: parse storey range string (e.g., '10 TO 12') to [10, 12]
+    const parseStoreyRange = (range: string) => {
+      const match = range.match(/(\d+)\s*TO\s*(\d+)/);
+      if (match) return [parseInt(match[1]), parseInt(match[2])];
+      const single = range.match(/(\d+)/);
+      if (single) return [parseInt(single[1]), parseInt(single[1])];
+      return [1, 50];
+    };
+
+    // Helper: check if a value is in a range
+    const inRange = (val: number, min: number, max: number) => val >= min && val <= max;
+
+    // Helper: check if a floor area matches the selected range
+    const matchesFloorArea = (area: number, range: string) => {
+      switch (range) {
+        case 'BELOW_60': return area < 60;
+        case '60_79': return area >= 60 && area <= 79;
+        case '80_99': return area >= 80 && area <= 99;
+        case '100_119': return area >= 100 && area <= 119;
+        case '120_PLUS': return area >= 120;
+        default: return true;
+      }
+    };
+
     // Filter listings based on current filters
     const filteredListings = townData.listings.filter(listing => {
       const meetsTypeFilter = filters.flatType === 'ALL' || listing.flat_type === filters.flatType;
-      
       const leaseYearsMatch = listing.remaining_lease.match(/(\d+)\s+years/);
       const leaseYears = leaseYearsMatch ? parseInt(leaseYearsMatch[1]) : 0;
       const meetsLeaseFilter = leaseYears >= filters.minLeaseYears && leaseYears <= filters.maxLeaseYears;
-      
-      return meetsTypeFilter && meetsLeaseFilter;
+      // Floor area
+      const area = parseFloat(listing.floor_area_sqm);
+      const meetsFloorArea = matchesFloorArea(area, filters.floorAreaRange);
+      // Storey range
+      const [listingMinStorey, listingMaxStorey] = parseStoreyRange(listing.storey_range);
+      const meetsStorey = listingMaxStorey >= filters.minStorey && listingMinStorey <= filters.maxStorey;
+      return meetsTypeFilter && meetsLeaseFilter && meetsFloorArea && meetsStorey;
     });
 
     if (filteredListings.length === 0) return null;
@@ -326,6 +357,15 @@ const PropertyMap: React.FC = () => {
               name: townName,
               data: townData
             });
+          } else {
+            setSelectedArea({
+              name: townName,
+              data: {
+                averagePrice: 0,
+                listingsCount: 0,
+                listings: []
+              }
+            });
           }
         }
       };
@@ -460,16 +500,23 @@ const PropertyMap: React.FC = () => {
                   {selectedArea.name}
                 </span>
               </div>
-              <div className="flex flex-col gap-2">
-                <div className="bg-gradient-to-r from-blue-50/60 to-blue-100/30 p-2 rounded-md border border-blue-100">
-                  <span className="block text-[11px] uppercase font-semibold text-blue-700/70 mb-0.5 tracking-wide">Average Price</span>
-                  <span className="text-[15px] font-bold text-blue-700">${selectedArea.data.averagePrice.toLocaleString()}</span>
+              {selectedArea.data.listingsCount > 0 ? (
+                <div className="flex flex-col gap-2">
+                  <div className="bg-gradient-to-r from-blue-50/60 to-blue-100/30 p-2 rounded-md border border-blue-100">
+                    <span className="block text-[11px] uppercase font-semibold text-blue-700/70 mb-0.5 tracking-wide">Average Price</span>
+                    <span className="text-[15px] font-bold text-blue-700">${selectedArea.data.averagePrice.toLocaleString()}</span>
+                  </div>
+                  <div className="bg-gradient-to-r from-blue-50/60 to-blue-100/30 p-2 rounded-md border border-blue-100">
+                    <span className="block text-[11px] uppercase font-semibold text-blue-700/70 mb-0.5 tracking-wide">Number of Listings</span>
+                    <span className="text-[15px] font-bold text-blue-700">{selectedArea.data.listingsCount}</span>
+                  </div>
                 </div>
-                <div className="bg-gradient-to-r from-blue-50/60 to-blue-100/30 p-2 rounded-md border border-blue-100">
-                  <span className="block text-[11px] uppercase font-semibold text-blue-700/70 mb-0.5 tracking-wide">Number of Listings</span>
-                  <span className="text-[15px] font-bold text-blue-700">{selectedArea.data.listingsCount}</span>
+              ) : (
+                <div className="bg-gradient-to-r from-amber-50/60 to-amber-100/30 p-3 rounded-md border border-amber-100">
+                  <span className="block text-[13px] font-medium text-amber-700/80 mb-1">No properties found</span>
+                  <span className="block text-[11px] text-amber-600/70">Try adjusting your filters to see more listings in this area.</span>
                 </div>
-              </div>
+              )}
             </div>
           ) : (
             <div
