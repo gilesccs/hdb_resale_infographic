@@ -1,6 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Filter, RefreshCcw } from 'lucide-react';
 import { PropertyFilters } from '../types';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select';
+import { Slider } from './ui/slider';
+import { Label } from './ui/label';
 
 interface FilterBarProps {
   filters: PropertyFilters;
@@ -30,104 +39,91 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange }) => {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <Filter className="h-5 w-5 text-blue-600" />
-          <h2 className="font-medium text-gray-800">Filter Properties</h2>
-        </div>
-        
+    <div
+      className="w-full rounded-xl shadow-lg border border-border bg-white/60 backdrop-blur-md px-4 py-2 flex flex-col md:flex-row md:items-center md:gap-6 gap-2 transition-all"
+      style={{
+        background: 'linear-gradient(90deg, rgba(255,255,255,0.85) 60%, rgba(230,244,255,0.7) 100%)',
+        boxShadow: '0 4px 24px 0 rgba(36, 100, 170, 0.07)',
+      }}
+    >
+      <div className="flex items-center gap-2 min-w-fit">
+        <Filter className="h-5 w-5 text-primary" />
+        <span className="font-medium text-foreground text-base">Filter Properties</span>
+      </div>
+      <div className="flex items-center gap-2 min-w-fit">
+        <Label htmlFor="flatType" className="text-sm font-medium">Flat Type</Label>
+        <Select
+          value={filters.flatType}
+          onValueChange={(value) => onFiltersChange({ ...filters, flatType: value })}
+        >
+          <SelectTrigger id="flatType" className="w-36 h-9 text-sm" >
+            <SelectValue placeholder="Select flat type" />
+          </SelectTrigger>
+          <SelectContent>
+            {FLAT_TYPES.map((type) => (
+              <SelectItem key={type} value={type}>
+                {type}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      {isExpanded && (
+        <>
+          <div className="flex items-center gap-2 min-w-fit">
+            <Label htmlFor="minLeaseYears" className="text-sm font-medium whitespace-nowrap">Min Lease</Label>
+            <Slider
+              id="minLeaseYears"
+              min={0}
+              max={99}
+              value={[filters.minLeaseYears]}
+              onValueChange={([value]) => {
+                onFiltersChange({
+                  ...filters,
+                  minLeaseYears: value > filters.maxLeaseYears ? filters.maxLeaseYears : value
+                });
+              }}
+              className="w-28"
+            />
+            <span className="w-8 text-center text-xs font-medium">{filters.minLeaseYears}</span>
+          </div>
+          <div className="flex items-center gap-2 min-w-fit">
+            <Label htmlFor="maxLeaseYears" className="text-sm font-medium whitespace-nowrap">Max Lease</Label>
+            <Slider
+              id="maxLeaseYears"
+              min={0}
+              max={99}
+              value={[filters.maxLeaseYears]}
+              onValueChange={([value]) => {
+                onFiltersChange({
+                  ...filters,
+                  maxLeaseYears: value < filters.minLeaseYears ? filters.minLeaseYears : value
+                });
+              }}
+              className="w-28"
+            />
+            <span className="w-8 text-center text-xs font-medium">{filters.maxLeaseYears}</span>
+          </div>
+        </>
+      )}
+      <div className="flex-1" />
+      <div className="flex items-center gap-2 min-w-fit">
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+          className="text-xs px-3 py-1 rounded-md bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors border border-transparent"
         >
           {isExpanded ? 'Simple View' : 'Advanced Filters'}
         </button>
-      </div>
-      
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div>
-          <label htmlFor="flatType" className="block text-sm font-medium text-gray-700 mb-1">
-            Flat Type
-          </label>
-          <select
-            id="flatType"
-            value={filters.flatType}
-            onChange={(e) => onFiltersChange({ ...filters, flatType: e.target.value })}
-            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
-          >
-            {FLAT_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-        </div>
-        
         {isExpanded && (
-          <>
-            <div>
-              <label htmlFor="minLeaseYears" className="block text-sm font-medium text-gray-700 mb-1">
-                Min Lease Years Remaining
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="range"
-                  id="minLeaseYears"
-                  min="0"
-                  max="99"
-                  value={filters.minLeaseYears}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value);
-                    onFiltersChange({
-                      ...filters,
-                      minLeaseYears: value > filters.maxLeaseYears ? filters.maxLeaseYears : value
-                    });
-                  }}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                />
-                <span className="w-8 text-center text-sm font-medium">{filters.minLeaseYears}</span>
-              </div>
-            </div>
-            
-            <div>
-              <label htmlFor="maxLeaseYears" className="block text-sm font-medium text-gray-700 mb-1">
-                Max Lease Years Remaining
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="range"
-                  id="maxLeaseYears"
-                  min="0"
-                  max="99"
-                  value={filters.maxLeaseYears}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value);
-                    onFiltersChange({
-                      ...filters,
-                      maxLeaseYears: value < filters.minLeaseYears ? filters.minLeaseYears : value
-                    });
-                  }}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                />
-                <span className="w-8 text-center text-sm font-medium">{filters.maxLeaseYears}</span>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-      
-      {isExpanded && (
-        <div className="flex justify-end">
           <button
             onClick={resetFilters}
-            className="flex items-center gap-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded transition-colors"
+            className="flex items-center gap-1 text-xs px-3 py-1 rounded-md bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border transition-colors"
           >
             <RefreshCcw className="h-4 w-4" />
-            Reset Filters
+            Reset
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

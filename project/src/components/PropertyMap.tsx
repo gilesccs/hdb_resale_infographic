@@ -446,102 +446,41 @@ const PropertyMap: React.FC = () => {
         <div ref={mapContainer} className="absolute inset-0" />
         
         {/* Info Panel */}
-        <div className="absolute top-4 right-4 z-20" style={{ minWidth: '220px', maxWidth: '240px' }}>
+        <div className="absolute top-4 right-4 z-20 min-w-[220px] max-w-[240px]">
           {selectedArea ? (
-            <Paper 
-              shadow="sm" 
-              p="xs" 
-              radius="md" 
+            <div
+              className="rounded-xl border border-border bg-white/70 backdrop-blur-md shadow-xl px-4 py-3 flex flex-col gap-2 font-sans"
               style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(231, 245, 255, 0.3)',
-                boxShadow: '0 8px 32px rgba(77, 171, 247, 0.1)'
+                fontFamily: 'PT Root UI, ui-sans-serif, system-ui, sans-serif',
+                boxShadow: '0 8px 32px rgba(77, 171, 247, 0.10)',
               }}
             >
-              <div className="space-y-2">
-                <div className="flex items-center">
-                  <Title order={4} style={{ 
-                    fontSize: '1.1rem',
-                    letterSpacing: '-0.02em',
-                    background: 'linear-gradient(135deg, #2188ff, #0366d6)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    fontWeight: 600
-                  }}>
-                    {selectedArea.name}
-                  </Title>
+              <div className="flex items-center mb-1">
+                <span className="text-base font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent tracking-tight">
+                  {selectedArea.name}
+                </span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="bg-gradient-to-r from-blue-50/60 to-blue-100/30 p-2 rounded-md border border-blue-100">
+                  <span className="block text-[11px] uppercase font-semibold text-blue-700/70 mb-0.5 tracking-wide">Average Price</span>
+                  <span className="text-[15px] font-bold text-blue-700">${selectedArea.data.averagePrice.toLocaleString()}</span>
                 </div>
-                <div style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '6px'
-                }}>
-                  <div style={{
-                    background: 'linear-gradient(to right, rgba(231, 245, 255, 0.5), rgba(231, 245, 255, 0.3))',
-                    padding: '8px',
-                    borderRadius: '6px',
-                    border: '1px solid rgba(231, 245, 255, 0.5)'
-                  }}>
-                    <Text c="dimmed" size="xs" style={{ 
-                      marginBottom: '1px',
-                      letterSpacing: '0.02em',
-                      textTransform: 'uppercase',
-                      fontWeight: 500
-                    }}>
-                      Average Price
-                    </Text>
-                    <Text size="md" fw={600} style={{ 
-                      color: '#0366d6',
-                      letterSpacing: '-0.01em'
-                    }}>
-                      ${selectedArea.data.averagePrice.toLocaleString()}
-                    </Text>
-                  </div>
-                  <div style={{
-                    background: 'linear-gradient(to right, rgba(231, 245, 255, 0.5), rgba(231, 245, 255, 0.3))',
-                    padding: '8px',
-                    borderRadius: '6px',
-                    border: '1px solid rgba(231, 245, 255, 0.5)'
-                  }}>
-                    <Text c="dimmed" size="xs" style={{ 
-                      marginBottom: '1px',
-                      letterSpacing: '0.02em',
-                      textTransform: 'uppercase',
-                      fontWeight: 500
-                    }}>
-                      Number of Listings
-                    </Text>
-                    <Text size="md" fw={600} style={{ 
-                      color: '#0366d6',
-                      letterSpacing: '-0.01em'
-                    }}>
-                      {selectedArea.data.listingsCount}
-                    </Text>
-                  </div>
+                <div className="bg-gradient-to-r from-blue-50/60 to-blue-100/30 p-2 rounded-md border border-blue-100">
+                  <span className="block text-[11px] uppercase font-semibold text-blue-700/70 mb-0.5 tracking-wide">Number of Listings</span>
+                  <span className="text-[15px] font-bold text-blue-700">{selectedArea.data.listingsCount}</span>
                 </div>
               </div>
-            </Paper>
+            </div>
           ) : (
-            <Paper 
-              shadow="sm" 
-              p="xs" 
-              radius="md" 
+            <div
+              className="rounded-xl border border-border bg-white/70 backdrop-blur-md shadow-xl px-4 py-3 font-sans"
               style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(231, 245, 255, 0.3)',
-                boxShadow: '0 8px 32px rgba(77, 171, 247, 0.1)'
+                fontFamily: 'PT Root UI, ui-sans-serif, system-ui, sans-serif',
+                boxShadow: '0 8px 32px rgba(77, 171, 247, 0.10)',
               }}
             >
-              <Text c="dimmed" size="xs" style={{ 
-                color: '#0366d6',
-                letterSpacing: '0.02em',
-                fontWeight: 500
-              }}>
-                Hover over an area to see details
-              </Text>
-            </Paper>
+              <span className="text-xs text-blue-700/80 font-semibold">Hover over an area to see details</span>
+            </div>
           )}
         </div>
 
