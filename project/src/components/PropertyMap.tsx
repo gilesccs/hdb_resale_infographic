@@ -105,11 +105,19 @@ const PropertyMap: React.FC = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await getPropertyData();
+        const response = await fetch('/api/propertyData');
+        if (!response.ok) {
+          throw new Error('Failed to fetch property data');
+        }
+        const { data } = await response.json();
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid data format: expected an array of records');
+        }
         const processed = processPropertyData(data);
         setPropertyData(processed);
         setError(null);
       } catch (err) {
+        console.error('Error fetching property data:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch property data');
       } finally {
         setLoading(false);
