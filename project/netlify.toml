@@ -1,5 +1,5 @@
 [build]
-  base = "project"            # Set base directory to 'project' folder
-  publish = "project/dist"     # Set publish directory to 'project/dist'
-  command = "npm run build"    # The build command should be run from 'project' folder
-  functions = "project/netlify/functions"  # If you have serverless functions, set this
+  base = "project"            # Base directory for the project (correct)
+  publish = "dist"             # Corrected publish path (without repeating 'project')
+  command = "npm run build"    # Build command to run Vite
+  functions = "project/netlify/functions"  # Functions directory (if you have any)
