@@ -95,7 +95,9 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange }) => {
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 min-w-[120px] flex-shrink-0">
           <Label className="text-xs sm:text-sm">Flat Type</Label>
           <Select value={filters.flatType} onValueChange={v => onFiltersChange({ ...filters, flatType: v })}>
-            <SelectTrigger className="w-full sm:w-[100px] h-8" />
+            <SelectTrigger className="w-full sm:w-[100px] h-8">
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">ALL</SelectItem>
               <SelectItem value="1 ROOM">1 ROOM</SelectItem>
