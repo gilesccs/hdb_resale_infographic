@@ -2,4 +2,4 @@
   base = "project"            # Base directory for the project (correct)
   publish = "dist"             # Corrected publish path (without repeating 'project')
   command = "npm run build"    # Build command to run Vite
-  functions = "project/netlify/functions"  # Functions directory (if you have any)
+  functions = "netlify/functions"  # Functions directory (if you have any)
