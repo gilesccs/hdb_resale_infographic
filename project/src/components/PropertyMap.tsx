@@ -105,15 +105,15 @@ const PropertyMap: React.FC = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/propertyData');
+        const response = await fetch('/.netlify/functions/propertyData');
         if (!response.ok) {
           throw new Error('Failed to fetch property data');
         }
-        const { data } = await response.json();
-        if (!Array.isArray(data)) {
+        const { result } = await response.json();
+        if (!Array.isArray(result?.records)) {
           throw new Error('Invalid data format: expected an array of records');
         }
-        const processed = processPropertyData(data);
+        const processed = processPropertyData(result.records);
         setPropertyData(processed);
         setError(null);
       } catch (err) {
