@@ -1,4 +1,5 @@
 [build]
-  base = "."
-  publish = "project/dist"
-  command = "npm run build" 
+  base = "project"            # Set base directory to 'project' folder
+  publish = "project/dist"     # Set publish directory to 'project/dist'
+  command = "npm run build"    # The build command should be run from 'project' folder
+  functions = "project/netlify/functions"  # If you have serverless functions, set this
