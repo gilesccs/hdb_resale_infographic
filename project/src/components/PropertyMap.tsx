@@ -99,6 +99,7 @@ const PropertyMap: React.FC = () => {
     return () => {
       console.log('Cleaning up map...');
       map.current?.remove();
+      map.current = null;
     };
   }, []);
 
@@ -513,7 +514,11 @@ const PropertyMap: React.FC = () => {
         />
       </div>
       <div className="relative flex-1 min-h-0">
-        <div ref={mapContainer} className="absolute inset-0" />
+        <div
+          ref={mapContainer}
+          className="absolute inset-0 min-h-[300px] h-full"
+          style={{ minHeight: 300, height: '100%' }}
+        />
         
         {/* Info Panel - Responsive positioning */}
         <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-20 w-[calc(100%-1rem)] sm:w-auto sm:min-w-[220px] sm:max-w-[240px]">
