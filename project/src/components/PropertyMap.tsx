@@ -259,7 +259,7 @@ const PropertyMap: React.FC = () => {
 
   const initializeMapLayers = () => {
     console.log('initializeMapLayers called');
-    if (!map.current || !map.current.loaded()) return;
+    if (!map.current) return;
 
     // Remove existing layers if they exist
     ['region-fills', 'region-base', 'region-borders', 'region-hover-borders'].forEach(layerId => {
@@ -281,98 +281,118 @@ const PropertyMap: React.FC = () => {
 
     // Add base map with reduced opacity
     if (!map.current.getLayer('osm')) {
-      map.current.addLayer({
-        id: 'osm',
-        type: 'raster',
-        source: 'osm',
-        paint: {
-          'raster-opacity': 0.3
-        }
-      });
-      console.log('Layer added: osm', map.current.getLayer('osm'));
+      try {
+        map.current.addLayer({
+          id: 'osm',
+          type: 'raster',
+          source: 'osm',
+          paint: {
+            'raster-opacity': 0.3
+          }
+        });
+        console.log('Layer added: osm', map.current.getLayer('osm'));
+      } catch (e) {
+        console.error('Error adding layer: osm', e);
+      }
     }
 
     // Add region fills with enhanced hover effect
-    map.current.addLayer({
-      id: 'region-fills',
-      type: 'fill-extrusion',
-      source: 'hdb-towns',
-      paint: {
-        'fill-extrusion-color': [
-          'case',
-          ['has', 'averagePrice'],
-          ['interpolate', ['linear'], ['get', 'averagePrice'], 200000, '#2ecc71', 600000, '#f1c40f', 1000000, '#e74c3c'],
-          '#d1d5db'
-        ],
-        'fill-extrusion-height': [
-          'case',
-          ['boolean', ['feature-state', 'hover'], false],
-          1000,
-          0
-        ],
-        'fill-extrusion-base': 0,
-        'fill-extrusion-opacity': 0.95
-      }
-    });
-    console.log('Layer added: region-fills', map.current.getLayer('region-fills'));
+    try {
+      map.current.addLayer({
+        id: 'region-fills',
+        type: 'fill-extrusion',
+        source: 'hdb-towns',
+        paint: {
+          'fill-extrusion-color': [
+            'case',
+            ['has', 'averagePrice'],
+            ['interpolate', ['linear'], ['get', 'averagePrice'], 200000, '#2ecc71', 600000, '#f1c40f', 1000000, '#e74c3c'],
+            '#d1d5db'
+          ],
+          'fill-extrusion-height': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            1000,
+            0
+          ],
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 0.95
+        }
+      });
+      console.log('Layer added: region-fills', map.current.getLayer('region-fills'));
+    } catch (e) {
+      console.error('Error adding layer: region-fills', e);
+    }
 
     // Add base fill layer for better visibility
-    map.current.addLayer({
-      id: 'region-base',
-      type: 'fill',
-      source: 'hdb-towns',
-      paint: {
-        'fill-color': [
-          'case',
-          ['has', 'averagePrice'],
-          ['interpolate', ['linear'], ['get', 'averagePrice'], 200000, '#2ecc71', 600000, '#f1c40f', 1000000, '#e74c3c'],
-          '#d1d5db'
-        ],
-        'fill-opacity': 1
-      }
-    }, 'region-fills');
-    console.log('Layer added: region-base', map.current.getLayer('region-base'));
+    try {
+      map.current.addLayer({
+        id: 'region-base',
+        type: 'fill',
+        source: 'hdb-towns',
+        paint: {
+          'fill-color': [
+            'case',
+            ['has', 'averagePrice'],
+            ['interpolate', ['linear'], ['get', 'averagePrice'], 200000, '#2ecc71', 600000, '#f1c40f', 1000000, '#e74c3c'],
+            '#d1d5db'
+          ],
+          'fill-opacity': 1
+        }
+      }, 'region-fills');
+      console.log('Layer added: region-base', map.current.getLayer('region-base'));
+    } catch (e) {
+      console.error('Error adding layer: region-base', e);
+    }
 
     // Add border layer
-    map.current.addLayer({
-      id: 'region-borders',
-      type: 'line',
-      source: 'hdb-towns',
-      paint: {
-        'line-color': '#ffffff',
-        'line-width': [
-          'case',
-          ['boolean', ['feature-state', 'hover'], false],
-          2,
-          1
-        ],
-        'line-opacity': [
-          'case',
-          ['boolean', ['feature-state', 'hover'], false],
-          0.8,
-          0.3
-        ]
-      }
-    });
-    console.log('Layer added: region-borders', map.current.getLayer('region-borders'));
+    try {
+      map.current.addLayer({
+        id: 'region-borders',
+        type: 'line',
+        source: 'hdb-towns',
+        paint: {
+          'line-color': '#ffffff',
+          'line-width': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            2,
+            1
+          ],
+          'line-opacity': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            0.8,
+            0.3
+          ]
+        }
+      });
+      console.log('Layer added: region-borders', map.current.getLayer('region-borders'));
+    } catch (e) {
+      console.error('Error adding layer: region-borders', e);
+    }
 
     // Add highlight border for hovered state
-    map.current.addLayer({
-      id: 'region-hover-borders',
-      type: 'line',
-      source: 'hdb-towns',
-      paint: {
-        'line-color': '#ffffff',
-        'line-width': 2,
-        'line-opacity': [
-          'case',
-          ['boolean', ['feature-state', 'hover'], false],
-          0.8,
-          0
-        ]
-      }
-    });
-    console.log('Layer added: region-hover-borders', map.current.getLayer('region-hover-borders'));
+    try {
+      map.current.addLayer({
+        id: 'region-hover-borders',
+        type: 'line',
+        source: 'hdb-towns',
+        paint: {
+          'line-color': '#ffffff',
+          'line-width': 2,
+          'line-opacity': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            0.8,
+            0
+          ]
+        }
+      });
+      console.log('Layer added: region-hover-borders', map.current.getLayer('region-hover-borders'));
+    } catch (e) {
+      console.error('Error adding layer: region-hover-borders', e);
+    }
 
     // Add hover effect
     if (map.current) {
