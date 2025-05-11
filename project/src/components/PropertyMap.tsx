@@ -194,7 +194,7 @@ const PropertyMap: React.FC = () => {
 
     initializeMapLayers();
     updateMapData();
-  }, [mapLoaded, propertyData, planningAreas]);
+  }, [mapLoaded, propertyData, planningAreas, filters]);
 
   const getTownDataForTooltip = (townName: string): TownData | null => {
     if (!propertyData) return null;
@@ -257,13 +257,22 @@ const PropertyMap: React.FC = () => {
   const initializeMapLayers = () => {
     if (!map.current || !map.current.loaded()) return;
 
-    // Check if source already exists
-    if (!map.current.getSource('hdb-towns')) {
-      map.current.addSource('hdb-towns', {
-        type: 'geojson',
-        data: planningAreas
-      });
+    // Remove existing layers if they exist
+    ['region-fills', 'region-base', 'region-borders', 'region-hover-borders'].forEach(layerId => {
+      if (map.current!.getLayer(layerId)) {
+        map.current!.removeLayer(layerId);
+      }
+    });
+    // Remove existing source if it exists
+    if (map.current.getSource('hdb-towns')) {
+      map.current.removeSource('hdb-towns');
     }
+
+    // Add source and layers as before...
+    map.current.addSource('hdb-towns', {
+      type: 'geojson',
+      data: planningAreas
+    });
 
     // Add base map with reduced opacity
     if (!map.current.getLayer('osm')) {
@@ -278,90 +287,82 @@ const PropertyMap: React.FC = () => {
     }
 
     // Add region fills with enhanced hover effect
-    if (!map.current.getLayer('region-fills')) {
-      map.current.addLayer({
-        id: 'region-fills',
-        type: 'fill-extrusion',
-        source: 'hdb-towns',
-        paint: {
-          'fill-extrusion-color': [
-            'case',
-            ['has', 'averagePrice'],
-            ['interpolate', ['linear'], ['get', 'averagePrice'], 200000, '#2ecc71', 600000, '#f1c40f', 1000000, '#e74c3c'],
-            '#d1d5db'
-          ],
-          'fill-extrusion-height': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            1000,
-            0
-          ],
-          'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 0.95
-        }
-      });
-    }
+    map.current.addLayer({
+      id: 'region-fills',
+      type: 'fill-extrusion',
+      source: 'hdb-towns',
+      paint: {
+        'fill-extrusion-color': [
+          'case',
+          ['has', 'averagePrice'],
+          ['interpolate', ['linear'], ['get', 'averagePrice'], 200000, '#2ecc71', 600000, '#f1c40f', 1000000, '#e74c3c'],
+          '#d1d5db'
+        ],
+        'fill-extrusion-height': [
+          'case',
+          ['boolean', ['feature-state', 'hover'], false],
+          1000,
+          0
+        ],
+        'fill-extrusion-base': 0,
+        'fill-extrusion-opacity': 0.95
+      }
+    });
 
     // Add base fill layer for better visibility
-    if (!map.current.getLayer('region-base')) {
-      map.current.addLayer({
-        id: 'region-base',
-        type: 'fill',
-        source: 'hdb-towns',
-        paint: {
-          'fill-color': [
-            'case',
-            ['has', 'averagePrice'],
-            ['interpolate', ['linear'], ['get', 'averagePrice'], 200000, '#2ecc71', 600000, '#f1c40f', 1000000, '#e74c3c'],
-            '#d1d5db'
-          ],
-          'fill-opacity': 1
-        }
-      }, 'region-fills');  // Insert before the extrusion layer
-    }
+    map.current.addLayer({
+      id: 'region-base',
+      type: 'fill',
+      source: 'hdb-towns',
+      paint: {
+        'fill-color': [
+          'case',
+          ['has', 'averagePrice'],
+          ['interpolate', ['linear'], ['get', 'averagePrice'], 200000, '#2ecc71', 600000, '#f1c40f', 1000000, '#e74c3c'],
+          '#d1d5db'
+        ],
+        'fill-opacity': 1
+      }
+    }, 'region-fills');
 
     // Add border layer
-    if (!map.current.getLayer('region-borders')) {
-      map.current.addLayer({
-        id: 'region-borders',
-        type: 'line',
-        source: 'hdb-towns',
-        paint: {
-          'line-color': '#ffffff',
-          'line-width': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            2,
-            1
-          ],
-          'line-opacity': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            0.8,
-            0.3
-          ]
-        }
-      });
-    }
+    map.current.addLayer({
+      id: 'region-borders',
+      type: 'line',
+      source: 'hdb-towns',
+      paint: {
+        'line-color': '#ffffff',
+        'line-width': [
+          'case',
+          ['boolean', ['feature-state', 'hover'], false],
+          2,
+          1
+        ],
+        'line-opacity': [
+          'case',
+          ['boolean', ['feature-state', 'hover'], false],
+          0.8,
+          0.3
+        ]
+      }
+    });
 
     // Add highlight border for hovered state
-    if (!map.current.getLayer('region-hover-borders')) {
-      map.current.addLayer({
-        id: 'region-hover-borders',
-        type: 'line',
-        source: 'hdb-towns',
-        paint: {
-          'line-color': '#ffffff',
-          'line-width': 2,
-          'line-opacity': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            0.8,
-            0
-          ]
-        }
-      });
-    }
+    map.current.addLayer({
+      id: 'region-hover-borders',
+      type: 'line',
+      source: 'hdb-towns',
+      paint: {
+        'line-color': '#ffffff',
+        'line-width': 2,
+        'line-opacity': [
+          'case',
+          ['boolean', ['feature-state', 'hover'], false],
+          0.8,
+          0
+        ]
+      }
+    });
 
     // Add hover effect
     if (map.current) {
