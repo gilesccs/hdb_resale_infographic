@@ -519,41 +519,45 @@ const PropertyMap: React.FC = () => {
         <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-20 w-[calc(100%-1rem)] sm:w-auto sm:min-w-[220px] sm:max-w-[240px]">
           {selectedArea ? (
             <div
-              className="rounded-xl border border-border bg-white/70 backdrop-blur-md shadow-xl px-3 sm:px-4 py-2 sm:py-3 flex flex-col gap-2 font-sans"
+              className="rounded-xl border border-border bg-white/70 backdrop-blur-md shadow-xl px-2 sm:px-4 py-2 sm:py-3 flex flex-col gap-2 font-sans"
               style={{
                 fontFamily: 'PT Root UI, ui-sans-serif, system-ui, sans-serif',
                 boxShadow: '0 8px 32px rgba(77, 171, 247, 0.10)',
+                maxWidth: '95vw',
+                minWidth: '180px',
               }}
             >
               <div className="flex items-center mb-1">
-                <span className="text-sm sm:text-base font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent tracking-tight">
+                <span className="text-xs sm:text-base font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent tracking-tight">
                   {selectedArea.name}
                 </span>
               </div>
               {selectedArea.data.listingsCount > 0 ? (
                 <div className="flex flex-col gap-2">
-                  <div className="bg-gradient-to-r from-blue-50/60 to-blue-100/30 p-2 rounded-md border border-blue-100">
+                  <div className="bg-gradient-to-r from-blue-50/60 to-blue-100/30 p-1 sm:p-2 rounded-md border border-blue-100">
                     <span className="block text-[10px] sm:text-[11px] uppercase font-semibold text-blue-700/70 mb-0.5 tracking-wide">Average Price</span>
-                    <span className="text-[13px] sm:text-[15px] font-bold text-blue-700">${selectedArea.data.averagePrice.toLocaleString()}</span>
+                    <span className="text-xs sm:text-[15px] font-bold text-blue-700">${selectedArea.data.averagePrice.toLocaleString()}</span>
                   </div>
-                  <div className="bg-gradient-to-r from-blue-50/60 to-blue-100/30 p-2 rounded-md border border-blue-100">
+                  <div className="bg-gradient-to-r from-blue-50/60 to-blue-100/30 p-1 sm:p-2 rounded-md border border-blue-100">
                     <span className="block text-[10px] sm:text-[11px] uppercase font-semibold text-blue-700/70 mb-0.5 tracking-wide">Number of Listings</span>
-                    <span className="text-[13px] sm:text-[15px] font-bold text-blue-700">{selectedArea.data.listingsCount}</span>
+                    <span className="text-xs sm:text-[15px] font-bold text-blue-700">{selectedArea.data.listingsCount}</span>
                   </div>
                 </div>
               ) : (
-                <div className="bg-gradient-to-r from-amber-50/60 to-amber-100/30 p-2 sm:p-3 rounded-md border border-amber-100">
-                  <span className="block text-[12px] sm:text-[13px] font-medium text-amber-700/80 mb-1">No properties found</span>
+                <div className="bg-gradient-to-r from-amber-50/60 to-amber-100/30 p-1 sm:p-3 rounded-md border border-amber-100">
+                  <span className="block text-xs sm:text-[13px] font-medium text-amber-700/80 mb-1">No properties found</span>
                   <span className="block text-[10px] sm:text-[11px] text-amber-600/70">Try adjusting your filters to see more listings in this area.</span>
                 </div>
               )}
             </div>
           ) : (
             <div
-              className="rounded-xl border border-border bg-white/70 backdrop-blur-md shadow-xl px-3 sm:px-4 py-2 sm:py-3 font-sans"
+              className="rounded-xl border border-border bg-white/70 backdrop-blur-md shadow-xl px-2 sm:px-4 py-2 sm:py-3 font-sans"
               style={{
                 fontFamily: 'PT Root UI, ui-sans-serif, system-ui, sans-serif',
                 boxShadow: '0 8px 32px rgba(77, 171, 247, 0.10)',
+                maxWidth: '95vw',
+                minWidth: '180px',
               }}
             >
               <span className="text-[10px] sm:text-xs text-blue-700/80 font-semibold">Hover over an area to see details</span>
