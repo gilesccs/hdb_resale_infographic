@@ -128,8 +128,25 @@ const PropertyMap: React.FC = () => {
 
   useEffect(() => {
     if (!allPropertyData.length) return;
+    console.log('Total records fetched:', allPropertyData.length);
     const processed = processPropertyData(allPropertyData);
     setPropertyData(processed);
+    // Debug: How many in Jurong West, Yishun, Woodlands?
+    if (processed.towns['JURONG WEST']) {
+      console.log('Jurong West total listings:', processed.towns['JURONG WEST'].listings.length);
+    } else {
+      console.log('Jurong West not found in processed data');
+    }
+    if (processed.towns['YISHUN']) {
+      console.log('Yishun total listings:', processed.towns['YISHUN'].listings.length);
+    } else {
+      console.log('Yishun not found in processed data');
+    }
+    if (processed.towns['WOODLANDS']) {
+      console.log('Woodlands total listings:', processed.towns['WOODLANDS'].listings.length);
+    } else {
+      console.log('Woodlands not found in processed data');
+    }
   }, [filters, allPropertyData]);
 
   useEffect(() => {
