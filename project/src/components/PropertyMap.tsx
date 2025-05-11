@@ -273,6 +273,7 @@ const PropertyMap: React.FC = () => {
     }
 
     // Add source and layers as before...
+    console.log('Adding hdb-towns source with data:', planningAreas);
     map.current.addSource('hdb-towns', {
       type: 'geojson',
       data: planningAreas
@@ -288,6 +289,7 @@ const PropertyMap: React.FC = () => {
           'raster-opacity': 0.3
         }
       });
+      console.log('Layer added: osm', map.current.getLayer('osm'));
     }
 
     // Add region fills with enhanced hover effect
@@ -312,6 +314,7 @@ const PropertyMap: React.FC = () => {
         'fill-extrusion-opacity': 0.95
       }
     });
+    console.log('Layer added: region-fills', map.current.getLayer('region-fills'));
 
     // Add base fill layer for better visibility
     map.current.addLayer({
@@ -328,6 +331,7 @@ const PropertyMap: React.FC = () => {
         'fill-opacity': 1
       }
     }, 'region-fills');
+    console.log('Layer added: region-base', map.current.getLayer('region-base'));
 
     // Add border layer
     map.current.addLayer({
@@ -350,6 +354,7 @@ const PropertyMap: React.FC = () => {
         ]
       }
     });
+    console.log('Layer added: region-borders', map.current.getLayer('region-borders'));
 
     // Add highlight border for hovered state
     map.current.addLayer({
@@ -367,6 +372,7 @@ const PropertyMap: React.FC = () => {
         ]
       }
     });
+    console.log('Layer added: region-hover-borders', map.current.getLayer('region-hover-borders'));
 
     // Add hover effect
     if (map.current) {
@@ -514,6 +520,8 @@ const PropertyMap: React.FC = () => {
           }
         });
       }
+      map.current.triggerRepaint();
+      console.log('triggerRepaint called');
     }
     
     // Rest of the hover effect code...
