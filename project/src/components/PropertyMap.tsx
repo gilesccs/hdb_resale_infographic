@@ -46,6 +46,7 @@ const PropertyMap: React.FC = () => {
     maxStorey: 50
   });
   const [allPropertyData, setAllPropertyData] = useState<PropertyRecord[]>([]);
+  const [mapKey] = useState(() => String(Date.now()));
 
   const colorScale = d3.scaleSequential()
     .interpolator(d3.interpolateRdYlGn)
@@ -54,6 +55,11 @@ const PropertyMap: React.FC = () => {
   useEffect(() => {
     console.log('Map container ref:', mapContainer.current);
     if (!mapContainer.current) return;
+
+    if (map.current) {
+      console.log('Map already initialized, skipping.');
+      return;
+    }
 
     console.log('Initializing map...');
     map.current = new maplibregl.Map({
@@ -516,6 +522,7 @@ const PropertyMap: React.FC = () => {
       <div className="relative flex-1 min-h-0">
         <div
           ref={mapContainer}
+          key={mapKey}
           className="absolute inset-0 min-h-[300px] h-full"
           style={{ minHeight: 300, height: '100%' }}
         />
