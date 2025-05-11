@@ -57,10 +57,12 @@ const PropertyMap: React.FC = () => {
     console.log('Map container ref:', mapContainer.current);
     if (!mapContainer.current) return;
 
+    // Clean up any previous map instance and container content
     if (map.current) {
-      console.log('Map already initialized, skipping.');
-      return;
+      map.current.remove();
+      map.current = null;
     }
+    mapContainer.current.innerHTML = '';
 
     console.log('Initializing map...');
     map.current = new maplibregl.Map({
@@ -107,6 +109,7 @@ const PropertyMap: React.FC = () => {
       map.current?.remove();
       map.current = null;
       setMapLoaded(false);
+      if (mapContainer.current) mapContainer.current.innerHTML = '';
     };
   }, []);
 
