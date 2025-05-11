@@ -45,6 +45,7 @@ const PropertyMap: React.FC = () => {
     minStorey: 1,
     maxStorey: 50
   });
+  const [allPropertyData, setAllPropertyData] = useState<PropertyRecord[]>([]);
 
   const colorScale = d3.scaleSequential()
     .interpolator(d3.interpolateRdYlGn)
@@ -113,8 +114,7 @@ const PropertyMap: React.FC = () => {
         if (!Array.isArray(result?.records)) {
           throw new Error('Invalid data format: expected an array of records');
         }
-        const processed = processPropertyData(result.records);
-        setPropertyData(processed);
+        setAllPropertyData(result.records);
         setError(null);
       } catch (err) {
         console.error('Error fetching property data:', err);
@@ -123,9 +123,14 @@ const PropertyMap: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchData();
-  }, [filters]);
+  }, []);
+
+  useEffect(() => {
+    if (!allPropertyData.length) return;
+    const processed = processPropertyData(allPropertyData);
+    setPropertyData(processed);
+  }, [filters, allPropertyData]);
 
   useEffect(() => {
     const loadPlanningAreas = async () => {
