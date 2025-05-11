@@ -48,7 +48,6 @@ const PropertyMap: React.FC = () => {
   const [allPropertyData, setAllPropertyData] = useState<PropertyRecord[]>([]);
   const [mapKey] = useState(() => String(Date.now()));
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [forceUpdate, setForceUpdate] = useState(0);
 
   const colorScale = d3.scaleSequential()
     .interpolator(d3.interpolateRdYlGn)
@@ -191,18 +190,14 @@ const PropertyMap: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (mapLoaded && propertyData && planningAreas) {
-      setForceUpdate(f => f + 1);
-    }
-  }, [mapLoaded, propertyData, planningAreas]);
-
-  useEffect(() => {
     if (!map.current || !mapLoaded || !propertyData || !planningAreas) return;
     console.log('Effect to update map layers/data triggered');
-    initializeMapLayers();
-    updateMapData();
-    if (map.current) map.current.resize();
-  }, [mapLoaded, propertyData, planningAreas, filters, forceUpdate]);
+    setTimeout(() => {
+      initializeMapLayers();
+      updateMapData();
+      if (map.current) map.current.resize();
+    }, 0);
+  }, [mapLoaded, propertyData, planningAreas, filters]);
 
   const getTownDataForTooltip = (townName: string): TownData | null => {
     if (!propertyData) return null;
