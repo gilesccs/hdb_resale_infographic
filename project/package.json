@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "merge": "ts-node --esm src/scripts/mergePlanningAreas.ts"
+    "merge": "ts-node --esm src/scripts/mergePlanningAreas.ts",
+    "update-hdb-data": "node scripts/fetch_hdb_data.cjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
