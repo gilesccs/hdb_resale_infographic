@@ -47,6 +47,7 @@ const PropertyMap: React.FC = () => {
   });
   const [allPropertyData, setAllPropertyData] = useState<PropertyRecord[]>([]);
   const [mapKey] = useState(() => String(Date.now()));
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   const colorScale = d3.scaleSequential()
     .interpolator(d3.interpolateRdYlGn)
@@ -91,9 +92,8 @@ const PropertyMap: React.FC = () => {
       zoom: 11
     });
 
-    console.log('Map initialized:', map.current);
-
     map.current.on('load', () => {
+      setMapLoaded(true);
       console.log('Map loaded event fired');
     });
 
@@ -106,6 +106,7 @@ const PropertyMap: React.FC = () => {
       console.log('Cleaning up map...');
       map.current?.remove();
       map.current = null;
+      setMapLoaded(false);
     };
   }, []);
 
@@ -186,11 +187,11 @@ const PropertyMap: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!map.current || !propertyData || !planningAreas) return;
+    if (!map.current || !mapLoaded || !propertyData || !planningAreas) return;
 
     initializeMapLayers();
     updateMapData();
-  }, [map.current, propertyData, planningAreas]);
+  }, [mapLoaded, propertyData, planningAreas]);
 
   const getTownDataForTooltip = (townName: string): TownData | null => {
     if (!propertyData) return null;
