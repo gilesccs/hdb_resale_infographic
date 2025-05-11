@@ -89,16 +89,15 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange }) => {
 
   return (
     <div
-      className="flex overflow-x-auto flex-nowrap sm:flex-row gap-1 sm:gap-4 items-center bg-white/70 backdrop-blur-md rounded-2xl border border-border px-2 sm:px-4 py-1 sm:py-2 shadow-md w-full"
-      style={{ WebkitOverflowScrolling: 'touch' }}
+      className="flex flex-wrap gap-x-2 gap-y-1 items-center bg-white/70 backdrop-blur-md rounded-2xl border border-border px-2 sm:px-4 py-1 sm:py-2 shadow-md w-full"
     >
       <div className="flex items-center gap-1 mb-1 sm:mb-0 min-w-[120px] flex-shrink-0">
         <Filter className="h-4 w-4 text-blue-500" />
         <span className="font-semibold text-xs sm:text-base">Filter Properties</span>
       </div>
-      <div className="flex flex-nowrap gap-1 sm:gap-2 flex-1 min-w-[200px] items-center">
+      <div className="flex flex-wrap gap-x-2 gap-y-1 flex-1 min-w-0 items-center">
         {/* Flat Type - always shown */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 min-w-[100px] flex-shrink-0">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 min-w-[100px] flex-1">
           <Label className="text-xs">Flat Type</Label>
           <Select value={filters.flatType} onValueChange={v => onFiltersChange({ ...filters, flatType: v })}>
             <SelectTrigger className="w-full sm:w-[100px] h-7 sm:h-8 text-xs">
@@ -114,7 +113,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange }) => {
         {/* Advanced filters: only show when isExpanded is true */}
         {isExpanded && <>
           {/* Min Lease */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 min-w-[100px] flex-shrink-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 min-w-[100px] flex-1">
             <Label className="text-xs">Min Lease</Label>
             <Slider
               min={0}
@@ -126,7 +125,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange }) => {
             <span className="text-xs w-6 text-center">{filters.minLeaseYears}</span>
           </div>
           {/* Max Lease */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 min-w-[100px] flex-shrink-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 min-w-[100px] flex-1">
             <Label className="text-xs">Max Lease</Label>
             <Slider
               min={0}
@@ -138,7 +137,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange }) => {
             <span className="text-xs w-6 text-center">{filters.maxLeaseYears}</span>
           </div>
           {/* Floor Area */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 min-w-[100px] flex-shrink-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 min-w-[100px] flex-1">
             <Label className="text-xs">Floor Area</Label>
             <Select value={filters.floorAreaRange} onValueChange={v => onFiltersChange({ ...filters, floorAreaRange: v })}>
               <SelectTrigger className="w-full sm:w-[100px] h-7 sm:h-8 text-xs">
@@ -152,7 +151,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange }) => {
             </Select>
           </div>
           {/* Min Storey */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 min-w-[70px] flex-shrink-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 min-w-[70px] flex-1">
             <Label className="text-xs">Min Storey</Label>
             <input
               type="number"
@@ -165,7 +164,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange }) => {
             />
           </div>
           {/* Max Storey */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 min-w-[70px] flex-shrink-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 min-w-[70px] flex-1">
             <Label className="text-xs">Max Storey</Label>
             <input
               type="number"
@@ -179,23 +178,24 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange }) => {
           </div>
         </>}
       </div>
-      <button
-        type="button"
-        onClick={() => setIsExpanded((v) => !v)}
-        className="ml-auto mt-1 sm:mt-0 px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs sm:text-sm font-semibold hover:bg-blue-200 transition flex-shrink-0"
-      >
-        {isExpanded ? 'Simple View' : 'Advanced Filters'}
-      </button>
-      {/* Reset button: only when expanded */}
-      {isExpanded && (
+      <div className="flex gap-1 flex-shrink-0 mt-1 sm:mt-0">
         <button
-          onClick={resetFilters}
-          className="flex items-center gap-1 text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-md bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border transition-colors flex-shrink-0"
+          type="button"
+          onClick={() => setIsExpanded((v) => !v)}
+          className="px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs sm:text-sm font-semibold hover:bg-blue-200 transition"
         >
-          <RefreshCcw className="h-3 w-3 sm:h-4 sm:w-4" />
-          Reset
+          {isExpanded ? 'Simple View' : 'Advanced Filters'}
         </button>
-      )}
+        {isExpanded && (
+          <button
+            onClick={resetFilters}
+            className="flex items-center gap-1 text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-md bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border transition-colors"
+          >
+            <RefreshCcw className="h-3 w-3 sm:h-4 sm:w-4" />
+            Reset
+          </button>
+        )}
+      </div>
     </div>
   );
 };
