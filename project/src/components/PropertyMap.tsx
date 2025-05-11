@@ -48,6 +48,7 @@ const PropertyMap: React.FC = () => {
   const [allPropertyData, setAllPropertyData] = useState<PropertyRecord[]>([]);
   const [mapKey] = useState(() => String(Date.now()));
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   const colorScale = d3.scaleSequential()
     .interpolator(d3.interpolateRdYlGn)
@@ -190,11 +191,18 @@ const PropertyMap: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!map.current || !mapLoaded || !propertyData || !planningAreas) return;
+    if (mapLoaded && propertyData && planningAreas) {
+      setForceUpdate(f => f + 1);
+    }
+  }, [mapLoaded, propertyData, planningAreas]);
 
+  useEffect(() => {
+    if (!map.current || !mapLoaded || !propertyData || !planningAreas) return;
+    console.log('Effect to update map layers/data triggered');
     initializeMapLayers();
     updateMapData();
-  }, [mapLoaded, propertyData, planningAreas, filters]);
+    if (map.current) map.current.resize();
+  }, [mapLoaded, propertyData, planningAreas, filters, forceUpdate]);
 
   const getTownDataForTooltip = (townName: string): TownData | null => {
     if (!propertyData) return null;
@@ -255,6 +263,7 @@ const PropertyMap: React.FC = () => {
   };
 
   const initializeMapLayers = () => {
+    console.log('initializeMapLayers called');
     if (!map.current || !map.current.loaded()) return;
 
     // Remove existing layers if they exist
@@ -429,6 +438,7 @@ const PropertyMap: React.FC = () => {
   };
 
   const updateMapData = () => {
+    console.log('updateMapData called');
     if (!map.current || !propertyData || !planningAreas) return;
 
     const source = map.current.getSource('hdb-towns') as maplibregl.GeoJSONSource;
