@@ -84,103 +84,93 @@ const FilterBar: React.FC<FilterBarProps> = ({ filters, onFiltersChange }) => {
 
   return (
     <div
-      className="flex flex-wrap gap-2 sm:gap-4 lg:gap-6 items-center bg-white/70 backdrop-blur-md rounded-2xl border border-border px-2 sm:px-4 py-2 shadow-md w-full"
+      className="flex flex-col sm:flex-row flex-wrap gap-1 sm:gap-4 items-center bg-white/70 backdrop-blur-md rounded-2xl border border-border px-2 sm:px-4 py-1 sm:py-2 shadow-md w-full"
     >
-      <div className="flex items-center gap-2 mb-2 sm:mb-0 min-w-[150px]">
-        <Filter className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
-        <span className="font-semibold text-sm sm:text-base">Filter Properties</span>
+      <div className="flex items-center gap-1 mb-1 sm:mb-0 min-w-[120px]">
+        <Filter className="h-4 w-4 text-blue-500" />
+        <span className="font-semibold text-xs sm:text-base">Filter Properties</span>
       </div>
-      <div className="flex flex-wrap gap-2 flex-1 min-w-[200px]">
+      <div className="flex flex-wrap gap-1 sm:gap-2 flex-1 min-w-[200px] items-center">
         {/* Flat Type - always shown */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 min-w-[120px] flex-shrink-0">
-          <Label className="text-xs sm:text-sm">Flat Type</Label>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 min-w-[100px]">
+          <Label className="text-xs">Flat Type</Label>
           <Select value={filters.flatType} onValueChange={v => onFiltersChange({ ...filters, flatType: v })}>
-            <SelectTrigger className="w-full sm:w-[100px] h-8">
-              <SelectValue placeholder="Select type" />
-            </SelectTrigger>
+            <SelectTrigger className="w-full sm:w-[100px] h-7 sm:h-8 text-xs" />
             <SelectContent>
-              <SelectItem value="ALL">ALL</SelectItem>
-              <SelectItem value="1 ROOM">1 ROOM</SelectItem>
-              <SelectItem value="2 ROOM">2 ROOM</SelectItem>
-              <SelectItem value="3 ROOM">3 ROOM</SelectItem>
-              <SelectItem value="4 ROOM">4 ROOM</SelectItem>
-              <SelectItem value="5 ROOM">5 ROOM</SelectItem>
-              <SelectItem value="EXECUTIVE">EXECUTIVE</SelectItem>
+              {FLAT_TYPES.map(type => (
+                <SelectItem key={type} value={type}>{type}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
         {/* Advanced filters: only show when isExpanded is true */}
         {isExpanded && <>
           {/* Min Lease */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 min-w-[120px] flex-shrink-0">
-            <Label className="text-xs sm:text-sm">Min Lease</Label>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 min-w-[100px]">
+            <Label className="text-xs">Min Lease</Label>
             <Slider
               min={0}
               max={99}
               value={[filters.minLeaseYears]}
               onValueChange={([v]) => onFiltersChange({ ...filters, minLeaseYears: v })}
-              className="w-[80px] sm:w-[120px]"
+              className="w-[70px] sm:w-[120px]"
             />
-            <span className="text-xs sm:text-sm w-6 text-center">{filters.minLeaseYears}</span>
+            <span className="text-xs w-6 text-center">{filters.minLeaseYears}</span>
           </div>
           {/* Max Lease */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 min-w-[120px] flex-shrink-0">
-            <Label className="text-xs sm:text-sm">Max Lease</Label>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 min-w-[100px]">
+            <Label className="text-xs">Max Lease</Label>
             <Slider
               min={0}
               max={99}
               value={[filters.maxLeaseYears]}
               onValueChange={([v]) => onFiltersChange({ ...filters, maxLeaseYears: v })}
-              className="w-[80px] sm:w-[120px]"
+              className="w-[70px] sm:w-[120px]"
             />
-            <span className="text-xs sm:text-sm w-6 text-center">{filters.maxLeaseYears}</span>
+            <span className="text-xs w-6 text-center">{filters.maxLeaseYears}</span>
           </div>
           {/* Floor Area */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 min-w-[120px] flex-shrink-0">
-            <Label className="text-xs sm:text-sm">Floor Area</Label>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 min-w-[100px]">
+            <Label className="text-xs">Floor Area</Label>
             <Select value={filters.floorAreaRange} onValueChange={v => onFiltersChange({ ...filters, floorAreaRange: v })}>
-              <SelectTrigger className="w-full sm:w-[100px] h-8" />
+              <SelectTrigger className="w-full sm:w-[100px] h-7 sm:h-8 text-xs" />
               <SelectContent>
-                <SelectItem value="ANY">Any</SelectItem>
-                <SelectItem value="BELOW_60">Below 60</SelectItem>
-                <SelectItem value="60_79">60-79</SelectItem>
-                <SelectItem value="80_99">80-99</SelectItem>
-                <SelectItem value="100_119">100-119</SelectItem>
-                <SelectItem value="120_PLUS">120+</SelectItem>
+                {FLOOR_AREA_OPTIONS.map(opt => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
           {/* Min Storey */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 min-w-[100px] flex-shrink-0">
-            <Label className="text-xs sm:text-sm">Min Storey</Label>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 min-w-[70px]">
+            <Label className="text-xs">Min Storey</Label>
             <input
               type="number"
               min={1}
               max={50}
               value={filters.minStorey}
               onChange={e => onFiltersChange({ ...filters, minStorey: Number(e.target.value) })}
-              className="w-12 sm:w-16 h-8 rounded border border-gray-200 px-2 text-xs sm:text-sm"
+              className="w-10 sm:w-16 h-7 sm:h-8 rounded border border-gray-200 px-2 text-xs"
             />
           </div>
           {/* Max Storey */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 min-w-[100px] flex-shrink-0">
-            <Label className="text-xs sm:text-sm">Max Storey</Label>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 min-w-[70px]">
+            <Label className="text-xs">Max Storey</Label>
             <input
               type="number"
               min={1}
               max={50}
               value={filters.maxStorey}
               onChange={e => onFiltersChange({ ...filters, maxStorey: Number(e.target.value) })}
-              className="w-12 sm:w-16 h-8 rounded border border-gray-200 px-2 text-xs sm:text-sm"
+              className="w-10 sm:w-16 h-7 sm:h-8 rounded border border-gray-200 px-2 text-xs"
             />
           </div>
         </>}
       </div>
-      {/* Toggle button: always visible */}
       <button
         type="button"
         onClick={() => setIsExpanded((v) => !v)}
-        className="ml-auto mt-2 sm:mt-0 px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs sm:text-sm font-semibold hover:bg-blue-200 transition"
+        className="ml-auto mt-1 sm:mt-0 px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs sm:text-sm font-semibold hover:bg-blue-200 transition"
       >
         {isExpanded ? 'Simple View' : 'Advanced Filters'}
       </button>
